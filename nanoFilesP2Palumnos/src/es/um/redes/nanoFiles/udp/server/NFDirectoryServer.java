@@ -148,11 +148,19 @@ public class NFDirectoryServer {
 		
 		InetSocketAddress clientAddr = (InetSocketAddress) pkt.getSocketAddress();
 		byte[] dataToClient = null;
-		if(messageFromClient.equals("ping")) {
-			dataToClient = "pingok".getBytes();
+		
+		if(messageFromClient.startsWith("ping&")){
+			String protocolId = messageFromClient.substring(5);
+			dataToClient = protocolId.equals(NanoFiles.PROTOCOL_ID) ? "welcome".getBytes() : "denied".getBytes();
 		} else {
-			dataToClient = "invalid".getBytes();
+			if(messageFromClient.equals("ping")) {
+				dataToClient = "pingok".getBytes();
+			} else {
+				dataToClient = "invalid".getBytes();
+			}
 		}
+		
+		
 		
 		DatagramPacket packetToClient = new DatagramPacket(dataToClient, dataToClient.length, clientAddr);
 		socket.send(packetToClient);

@@ -213,8 +213,15 @@ public class DirectoryConnector {
 		 * recibida en el datagrama de respuesta es "welcome", imprimir si éxito o
 		 * fracaso. 6.Devolver éxito/fracaso de la operación.
 		 */
-
-
+		byte[] messageToSend = ("ping&" + NanoFiles.PROTOCOL_ID).getBytes();
+		byte[] response = this.sendAndReceiveDatagrams(messageToSend);
+		String sRes = new String(response , 0, response.length);
+		if(sRes.equals("welcome")) {
+			success = true;
+		}
+		System.out.println("The message was:" + sRes);
+		System.out.println("The result of the pingDirectoryRaw test is:" + success);
+		
 
 		return success;
 	}
