@@ -150,11 +150,6 @@ public class DirectoryConnector {
 			}
 		}
 
-
-		if (response != null && response.length == responseData.length) {
-			System.err.println("Your response is as large as the datagram reception buffer!!\n"
-					+ "You must extract from the buffer only the bytes that belong to the datagram!");
-		}
 		return response;
 	}
 
@@ -174,13 +169,14 @@ public class DirectoryConnector {
 		boolean success = false;
 		
 		byte[] msg = "ping".getBytes();
+		
 		byte[] res = sendAndReceiveDatagrams(msg);
+		
 		String sRes = new String(res, 0, res.length);
-		if(sRes.equals("pingok")) {
+		
+		if(sRes.startsWith("pingok")) {
 			success = true;
 		}
-		System.out.println(sRes);
-
 
 		return success;
 	}
