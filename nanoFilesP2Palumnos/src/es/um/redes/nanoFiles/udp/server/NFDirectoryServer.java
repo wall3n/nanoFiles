@@ -22,7 +22,7 @@ public class NFDirectoryServer {
 	/**
 	 * Socket de comunicación UDP con el cliente UDP (DirectoryConnector)
 	 */
-	private DatagramSocket socket = new DatagramSocket(NFDirectoryServer.DIRECTORY_PORT);
+	private DatagramSocket socket = null;
 
 	/*
 	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
@@ -51,11 +51,13 @@ public class NFDirectoryServer {
 		 * UDP ligado al puerto especificado por el argumento directoryPort en la
 		 * máquina local,
 		 */
+		socket = new DatagramSocket(NFDirectoryServer.DIRECTORY_PORT);
 		/*
 		 * TODO: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
 		 * servidor de directorio: ficheros, etc.)
 		 */
-
+		
+		
 
 
 		if (NanoFiles.testModeUDP) {
