@@ -27,13 +27,14 @@ public class DirMessage {
 	 * todos los campos que pueden aparecer en los mensajes de este protocolo
 	 * (formato campo:valor)
 	 */
-
+	private static final String FIELDNAME_PROTOCOLID = "protocolId";
 
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
 	 */
 	private String operation = DirMessageOps.OPERATION_INVALID;
+	
 	/**
 	 * Identificador de protocolo usado, para comprobar compatibilidad del directorio.
 	 */
@@ -55,8 +56,10 @@ public class DirMessage {
 	 * construir mensajes de diferentes tipos con sus correspondientes argumentos
 	 * (campos del mensaje)
 	 */
-
-
+	public DirMessage(String op, String pI) {
+		operation = op;
+		protocolId = pI;
+	}
 
 
 	public String getOperation() {
@@ -78,8 +81,10 @@ public class DirMessage {
 	}
 
 	public String getProtocolId() {
-
-
+		if (!operation.equals(DirMessageOps.OPERATION_PING)) {
+			throw new RuntimeException(
+					"DirMessage: getProtocolId called for message of unexpected type (" + operation + ")");
+		}
 
 		return protocolId;
 	}
@@ -122,9 +127,14 @@ public class DirMessage {
 				m = new DirMessage(value);
 				break;
 			}
-
-
-
+			
+			case FIELDNAME_PROTOCOLID: {
+				if(m == null) {
+					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
+					System.exit(-1);
+				}
+				m.setProtocolID(value);
+			}
 
 			default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
@@ -155,7 +165,15 @@ public class DirMessage {
 		 * una cadena la operación y concatenar el resto de campos necesarios usando los
 		 * valores de los atributos del objeto.
 		 */
-
+		switch(operation) {
+		case DirMessageOps.OPERATION_PING: {
+			if(protocolId.isEmpty()) {
+				System.err.println("You must fullfill the protocolId before creating a ping message");
+				System.exit(-1);
+			}
+			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+		}
+		}
 
 
 		sb.append(END_LINE); // Marcamos el final del mensaje
