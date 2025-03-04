@@ -73,17 +73,20 @@ public class NFDirectoryServer {
 		DatagramPacket datagramReceivedFromClient = null;
 		boolean datagramReceived = false;
 		while (!datagramReceived) {
-			byte[] recvBuf = new byte[DirMessage.PACKET_MAX_SIZE];
-			datagramReceivedFromClient = new DatagramPacket(recvBuf, recvBuf.length);
+			
 			/*
 			 * TODO: (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
 			 * datagrama asociado al búfer (datagramReceivedFromClient)
 			 */
+			
+			byte[] recvBuf = new byte[DirMessage.PACKET_MAX_SIZE];
+			datagramReceivedFromClient = new DatagramPacket(recvBuf, recvBuf.length);
+			
 			/*
 			 * TODO: (Boletín SocketsUDP) Recibimos a través del socket un datagrama
 			 */
+			
 			socket.receive(datagramReceivedFromClient);
-
 
 			if (datagramReceivedFromClient == null) {
 				System.err.println("[testMode] NFDirectoryServer.receiveDatagram: code not yet fully functional.\n"
