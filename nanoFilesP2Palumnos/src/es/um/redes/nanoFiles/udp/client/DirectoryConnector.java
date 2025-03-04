@@ -124,15 +124,15 @@ public class DirectoryConnector {
 		while(attempts < MAX_NUMBER_OF_ATTEMPTS && !success) {
 			try {
 				// Envio de datos al directorio
-				DatagramPacket packetToServer = new DatagramPacket(requestData, requestData.length, directoryAddress);
-				socket.send(packetToServer);
+				DatagramPacket packetToDir = new DatagramPacket(requestData, requestData.length, directoryAddress);
+				socket.send(packetToDir);
 				
 				// Recibir respuesta
-				DatagramPacket packetFromServer = new DatagramPacket(responseData, responseData.length);
+				DatagramPacket packetFromDir = new DatagramPacket(responseData, responseData.length);
 				socket.setSoTimeout(DirectoryConnector.TIMEOUT);
-				socket.receive(packetFromServer);
+				socket.receive(packetFromDir);
 				
-				response = Arrays.copyOfRange(packetFromServer.getData(), 0, packetFromServer.getLength());
+				response = Arrays.copyOfRange(packetFromDir.getData(), 0, packetFromDir.getLength());
 				
 				if (response != null && response.length == responseData.length) {
 					System.err.println("Your response is as large as the datagram reception buffer!!\n"
@@ -205,15 +205,18 @@ public class DirectoryConnector {
 		 * recibida en el datagrama de respuesta es "welcome", imprimir si éxito o
 		 * fracaso. 6.Devolver éxito/fracaso de la operación.
 		 */
+		
 		byte[] messageToSend = ("ping&" + NanoFiles.PROTOCOL_ID).getBytes();
+		
 		byte[] response = this.sendAndReceiveDatagrams(messageToSend);
+		
 		String sRes = new String(response , 0, response.length);
+		
 		if(sRes.equals("welcome")) {
 			success = true;
 		}
-		System.out.println("The message was:" + sRes);
-		System.out.println("The result of the pingDirectoryRaw test is:" + success);
 		
+		System.out.println("The result of the pingDirectoryRaw test is:" + success);
 
 		return success;
 	}
