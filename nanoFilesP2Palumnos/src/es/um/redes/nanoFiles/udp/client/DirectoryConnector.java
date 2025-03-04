@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.message.DirMessage;
@@ -99,41 +100,6 @@ public class DirectoryConnector {
 		 * recibir una respuesta. El array devuelto debe contener únicamente los datos
 		 * recibidos, *NO* el búfer de recepción al completo.
 		 */
-		DatagramPacket packetToServer = new DatagramPacket(requestData, requestData.length, directoryAddress);
-		DatagramPacket packetFromServer = new DatagramPacket(responseData, responseData.length);
-		
-		try {
-			socket.setSoTimeout(DirectoryConnector.TIMEOUT);
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		int attempts = 0;
-		boolean success = false;
-		while(attempts < DirectoryConnector.MAX_NUMBER_OF_ATTEMPTS && !success) {
-			try {
-				socket.send(packetToServer);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				socket.receive(packetFromServer);
-				success = true;
-			} catch (SocketTimeoutException e) {
-				++attempts;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		String msg = new String(responseData, 0, packetFromServer.getLength());
-		response = msg.getBytes();
-		System.out.println(msg);
-		
-		
 		/*
 		 * TODO: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
 		 * confiable (sin pérdidas) esté terminado y probado, debe implementarse un
@@ -152,7 +118,37 @@ public class DirectoryConnector {
 		 * NOTA: Las excepciones deben tratarse de la más concreta a la más genérica.
 		 * SocketTimeoutException es más concreta que IOException.
 		 */
-
+		
+		int attempts = 0;
+		boolean success = false;
+		while(attempts < MAX_NUMBER_OF_ATTEMPTS && !success) {
+			try {
+				// Envio de datos al directorio
+				DatagramPacket packetToServer = new DatagramPacket(requestData, requestData.length, directoryAddress);
+				socket.send(packetToServer);
+				
+				// Recibir respuesta
+				DatagramPacket packetFromServer = new DatagramPacket(responseData, responseData.length);
+				socket.setSoTimeout(DirectoryConnector.TIMEOUT);
+				socket.receive(packetFromServer);
+				
+				response = Arrays.copyOfRange(packetFromServer.getData(), 0, packetFromServer.getLength());
+				
+				if (response != null && response.length == responseData.length) {
+					System.err.println("Your response is as large as the datagram reception buffer!!\n"
+							+ "You must extract from the buffer only the bytes that belong to the datagram!");
+				} else {
+					success = true;
+				}
+				
+			} catch (SocketTimeoutException e) {
+				attempts++;
+				System.err.println("Tiemout. Retrying... Attempt: " + attempts);
+			} catch (IOException e) {
+				System.err.println("I/O exception. Terminating program.");
+				System.exit(-1);
+			}
+		}
 
 
 		if (response != null && response.length == responseData.length) {
