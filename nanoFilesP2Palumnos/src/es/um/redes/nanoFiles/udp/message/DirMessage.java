@@ -65,14 +65,7 @@ public class DirMessage {
 	 * construir mensajes de diferentes tipos con sus correspondientes argumentos
 	 * (campos del mensaje)
 	 */
-	public DirMessage(String op, String pI) {
-		operation = op;
-		protocolId = pI;
-	}
-	/*
-	 * TODO: Destruir constructor y usar getter y setter
-	 */
-
+	
 
 	public String getOperation() {
 		return operation;
