@@ -28,6 +28,12 @@ public class DirMessage {
 	 * (formato campo:valor)
 	 */
 	private static final String FIELDNAME_PROTOCOLID = "protocolId";
+	
+	private static final String FIELDNAME_OPERATION_RESPONSE = "operation-response";
+	
+	private static final String FIELDNAME_OPERATION_STATUS  = "operation-status";
+	
+	private static final String FIELDNAME_RESPONSE_MESSAGE = "response-message";
 
 
 	/**
@@ -43,6 +49,9 @@ public class DirMessage {
 	 * TODO: (Boletín MensajesASCII) Crear un atributo correspondiente a cada uno de
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
+	private String operationResponse;
+	private String operationStatus;
+	private String responseMessage;
 
 
 
@@ -60,6 +69,9 @@ public class DirMessage {
 		operation = op;
 		protocolId = pI;
 	}
+	/*
+	 * TODO: Destruir constructor y usar getter y setter
+	 */
 
 
 	public String getOperation() {
@@ -89,9 +101,48 @@ public class DirMessage {
 		return protocolId;
 	}
 
+	public void setOperationResponse(String opRes) {
+		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
+			throw new RuntimeException("DirMessage: setOperationRequested called for message of unexpected type (" + operation + ")");
+		}
+		operationResponse = opRes;
+	}
+	
+	public String getOperationResponse() {
+		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
+			throw new RuntimeException("DirMessage: getOperationRequested called for message of unexpected type (" + operation + ")");
+		}
+		return operationResponse;
+	}
+	
+	public void setOperationStatus(String opStat) {
+		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
+			throw new RuntimeException("DirMessage: setOperationStatus called for message of unexpected type (" + operation + ")");
+		}
+		operationStatus = opStat;
+	}
+	
+	public String getOperationStatus() {
+		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
+			throw new RuntimeException("DirMessage: setOperationStatus called for message of unexpected type (" + operation + ")");
+		}
+		return operationStatus;
+	}
 
-
-
+	public void setResponseMessage(String msg) {
+		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
+			throw new RuntimeException("DirMessage: setResponseMessage called for message of unexpected type (" + operation + ")");
+		}
+		responseMessage = msg;
+	}
+	
+	public String getResponseMessage() {
+		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
+			throw new RuntimeException("DirMessage: setResponseMessage called for message of unexpected type (" + operation + ")");
+		}
+		return responseMessage;
+	}
+	
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
 	 * un objeto de la clase PeerMessage, en el cual los atributos correspondientes
@@ -135,6 +186,30 @@ public class DirMessage {
 				}
 				m.setProtocolID(value);
 			}
+			
+			case FIELDNAME_OPERATION_RESPONSE: {
+				if(m == null) {
+					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
+					System.exit(-1);
+				}
+				m.setOperationResponse(value);
+			}
+			
+			case FIELDNAME_OPERATION_STATUS: {
+				if(m == null) {
+					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
+					System.exit(-1);
+				}
+				m.setOperationStatus(value);
+			}
+			
+			case FIELDNAME_RESPONSE_MESSAGE: {
+				if(m == null) {
+					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
+					System.exit(-1);
+				}
+				m.setResponseMessage(value);
+			}
 
 			default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
@@ -172,6 +247,15 @@ public class DirMessage {
 				System.exit(-1);
 			}
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+		}
+		case DirMessageOps.OPERATION_RESPONSE: {
+			if(operationResponse.isEmpty() || operationStatus.isEmpty()) {
+				System.err.println("You must fullfill the operation-status and operation-response before creating a ping message");
+				System.exit(-1);
+			}
+			sb.append(FIELDNAME_OPERATION_RESPONSE + DELIMITER + operationResponse + END_LINE);
+			sb.append(FIELDNAME_OPERATION_STATUS + DELIMITER + operationStatus + END_LINE);
+			sb.append(FIELDNAME_RESPONSE_MESSAGE + DELIMITER + responseMessage + END_LINE);
 		}
 		}
 
