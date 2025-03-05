@@ -195,7 +195,10 @@ public class NFDirectoryServer {
 		 * métodos "getter" para procesar el mensaje y consultar/modificar el estado del
 		 * servidor.
 		 */
-
+		String messageFromClientStr = new String(pkt.getData(), 0, pkt.getLength());
+		System.out.println(messageFromClientStr);
+		
+		DirMessage messageFromClient = DirMessage.fromString(messageFromClientStr);
 
 
 		/*
@@ -203,7 +206,7 @@ public class NFDirectoryServer {
 		 * recibido, obtener el tipo de operación solicitada por el mensaje y actuar en
 		 * consecuencia, enviando uno u otro tipo de mensaje en respuesta.
 		 */
-		String operation = DirMessageOps.OPERATION_INVALID; // TODO: Cambiar!
+		String operation = messageFromClient.getOperation(); // DONE: Cambiar!
 
 		/*
 		 * TODO: (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
@@ -213,21 +216,26 @@ public class NFDirectoryServer {
 		 * contendrán los valores adecuados para los diferentes campos del mensaje a
 		 * enviar como respuesta (operation, etc.)
 		 */
-
+		DirMessage messageToClient = new DirMessage(DirMessageOps.OPERATION_RESPONSE);
 
 
 
 
 		switch (operation) {
 		case DirMessageOps.OPERATION_PING: {
-
-
-
-
 			/*
 			 * TODO: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
+			if(messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				messageToClient.setOperationStatus("success");
+				messageToClient.setResponseMessage("Welcome");
+				System.out.println("Login succed!!");
+			} else {
+				messageToClient.setOperationStatus("denied");
+				messageToClient.setResponseMessage("Protocol not compatible");
+				System.err.println("Login denied - Bad protocol");
+			}
 			/*
 			 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
 			 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
@@ -238,9 +246,6 @@ public class NFDirectoryServer {
 			 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
 			 * modo de depuración en el servidor
 			 */
-
-
-
 			break;
 		}
 
@@ -256,8 +261,11 @@ public class NFDirectoryServer {
 		 * (msgToSend) con el mensaje de respuesta a enviar, extraer los bytes en que se
 		 * codifica el string y finalmente enviarlos en un datagrama
 		 */
-
-
+		byte[] dataToSend = messageToClient.toString().getBytes();
+		
+		InetSocketAddress clientAddr = (InetSocketAddress) pkt.getSocketAddress();
+		DatagramPacket packetToClient = new DatagramPacket(dataToSend, dataToSend.length, clientAddr);
+		socket.send(packetToClient);
 
 	}
 }
