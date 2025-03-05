@@ -240,9 +240,23 @@ public class DirectoryConnector {
 		 * 6.Extraer datos del objeto DirMessage y procesarlos 7.Devolver éxito/fracaso
 		 * de la operación
 		 */
-
-
-
+		DirMessage messageToDir = new DirMessage(DirMessageOps.OPERATION_PING);
+		messageToDir.setProtocolID(NanoFiles.PROTOCOL_ID);
+		byte[] byteMessageToDir = messageToDir.toString().getBytes();
+		
+		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
+		
+		String sRes = new String(response, 0, response.length);
+		
+		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_RESPONSE)) {
+			success = messageFromDir.getOperationStatus().equals("success") && messageFromDir.getResponseMessage().equals("Welcome");
+		} else {
+			System.err.println("La respuesta no fue del tipo deseado");
+		}
+		 
+		
 		return success;
 	}
 
