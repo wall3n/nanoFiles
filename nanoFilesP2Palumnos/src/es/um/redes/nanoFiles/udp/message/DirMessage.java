@@ -27,7 +27,7 @@ public class DirMessage {
 	 * todos los campos que pueden aparecer en los mensajes de este protocolo
 	 * (formato campo:valor)
 	 */
-	private static final String FIELDNAME_PROTOCOLID = "protocolId";
+	private static final String FIELDNAME_PROTOCOLID = "protocolid";
 	
 	private static final String FIELDNAME_OPERATION_RESPONSE = "operation-response";
 	
@@ -178,6 +178,7 @@ public class DirMessage {
 					System.exit(-1);
 				}
 				m.setProtocolID(value);
+				break;
 			}
 			
 			case FIELDNAME_OPERATION_RESPONSE: {
@@ -186,6 +187,7 @@ public class DirMessage {
 					System.exit(-1);
 				}
 				m.setOperationResponse(value);
+				break;
 			}
 			
 			case FIELDNAME_OPERATION_STATUS: {
@@ -194,6 +196,7 @@ public class DirMessage {
 					System.exit(-1);
 				}
 				m.setOperationStatus(value);
+				break;
 			}
 			
 			case FIELDNAME_RESPONSE_MESSAGE: {
@@ -202,6 +205,7 @@ public class DirMessage {
 					System.exit(-1);
 				}
 				m.setResponseMessage(value);
+				break;
 			}
 
 			default:
@@ -235,20 +239,16 @@ public class DirMessage {
 		 */
 		switch(operation) {
 		case DirMessageOps.OPERATION_PING: {
-			if(protocolId.isEmpty()) {
-				System.err.println("You must fullfill the protocolId before creating a ping message");
-				System.exit(-1);
-			}
+			
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+			break;
 		}
 		case DirMessageOps.OPERATION_RESPONSE: {
-			if(operationResponse.isEmpty() || operationStatus.isEmpty()) {
-				System.err.println("You must fullfill the operation-status and operation-response before creating a ping message");
-				System.exit(-1);
-			}
+			
 			sb.append(FIELDNAME_OPERATION_RESPONSE + DELIMITER + operationResponse + END_LINE);
 			sb.append(FIELDNAME_OPERATION_STATUS + DELIMITER + operationStatus + END_LINE);
 			sb.append(FIELDNAME_RESPONSE_MESSAGE + DELIMITER + responseMessage + END_LINE);
+			break;
 		}
 		}
 
