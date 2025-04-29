@@ -1,6 +1,9 @@
 package es.um.redes.nanoFiles.tcp.server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,16 +20,17 @@ public class NFServer implements Runnable {
 
 	public NFServer() throws IOException {
 		/*
-		 * TODO: (Boletín SocketsTCP) Crear una direción de socket a partir del puerto
+		 * DONE: (Boletín SocketsTCP) Crear una direción de socket a partir del puerto
 		 * especificado (PORT)
 		 */
+		InetSocketAddress serverSocketAddr = new InetSocketAddress(PORT);
+		
 		/*
-		 * TODO: (Boletín SocketsTCP) Crear un socket servidor y ligarlo a la dirección
+		 * DONE: (Boletín SocketsTCP) Crear un socket servidor y ligarlo a la dirección
 		 * de socket anterior
 		 */
-
-
-
+		serverSocket.bind(serverSocketAddr);
+		
 	}
 
 	/**
@@ -44,19 +48,26 @@ public class NFServer implements Runnable {
 			System.out
 					.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
-
-		while (true) {
+		try (ServerSocket serverSocket = new ServerSocket()) {
+			while (true) {
 			/*
 			 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 			 * otros peers que soliciten descargar ficheros.
 			 */
+				Socket socketNew = serverSocket.accept();
+			
 			/*
 			 * TODO: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
 			 * comunicación con dicho cliente para servir los ficheros solicitados se debe
 			 * implementar en el método serveFilesToClient, al cual hay que pasarle el
 			 * socket devuelto por accept.
 			 */
-
+				serveFilesToClient(socketNew);
+			}
+		} catch (IOException ex) {
+			System.out.println("Server exception: " + ex.getMessage());
+			ex.printStackTrace();
+		}
 
 
 		}
@@ -110,14 +121,20 @@ public class NFServer implements Runnable {
 	 */
 	public static void serveFilesToClient(Socket socket) {
 		/*
-		 * TODO: (Boletín SocketsTCP) Crear dis/dos a partir del socket
+		 * DONE: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
+		DataInputStream dis = new DataInputStream(socket.getInputStream());
+		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 		/*
 		 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
 		 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
 		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
 		 * respuesta.
 		 */
+		while(socket.isConnected()) {
+			String dataFromClient = dis.readUTF();
+		}
+		
 		/*
 		 * TODO: (Boletín SocketsTCP) Para servir un fichero, hay que localizarlo a
 		 * partir de su hash (o subcadena) en nuestra base de datos de ficheros
