@@ -28,12 +28,11 @@ public class DirMessage {
 	 * (formato campo:valor)
 	 */
 	private static final String FIELDNAME_PROTOCOLID = "protocolid";
-	
-	private static final String FIELDNAME_OPERATION_RESPONSE = "operation-response";
-	
-	private static final String FIELDNAME_OPERATION_STATUS  = "operation-status";
-	
-	private static final String FIELDNAME_RESPONSE_MESSAGE = "response-message";
+	private static final String FIELDNAME_FILENAME = "filename";
+	private static final String FIELDNAME_SIZE = "size";
+	private static final String FIELDNAME_HASH = "hash";
+	private static final String FIELDNAME_PORT = "port";
+	private static final String FIELDNAME_PEER = "peer";
 
 
 	/**
@@ -49,9 +48,11 @@ public class DirMessage {
 	 * TODO: (Boletín MensajesASCII) Crear un atributo correspondiente a cada uno de
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
-	private String operationResponse;
-	private String operationStatus;
-	private String responseMessage;
+	private String filename;
+	private String size;
+	private String hash;
+	private String port;
+	private String peer;
 
 
 
@@ -94,47 +95,7 @@ public class DirMessage {
 		return protocolId;
 	}
 
-	public void setOperationResponse(String opRes) {
-		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
-			throw new RuntimeException("DirMessage: setOperationRequested called for message of unexpected type (" + operation + ")");
-		}
-		operationResponse = opRes;
-	}
 	
-	public String getOperationResponse() {
-		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
-			throw new RuntimeException("DirMessage: getOperationRequested called for message of unexpected type (" + operation + ")");
-		}
-		return operationResponse;
-	}
-	
-	public void setOperationStatus(String opStat) {
-		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
-			throw new RuntimeException("DirMessage: setOperationStatus called for message of unexpected type (" + operation + ")");
-		}
-		operationStatus = opStat;
-	}
-	
-	public String getOperationStatus() {
-		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
-			throw new RuntimeException("DirMessage: setOperationStatus called for message of unexpected type (" + operation + ")");
-		}
-		return operationStatus;
-	}
-
-	public void setResponseMessage(String msg) {
-		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
-			throw new RuntimeException("DirMessage: setResponseMessage called for message of unexpected type (" + operation + ")");
-		}
-		responseMessage = msg;
-	}
-	
-	public String getResponseMessage() {
-		if(!operation.equals(DirMessageOps.OPERATION_RESPONSE)) {
-			throw new RuntimeException("DirMessage: setResponseMessage called for message of unexpected type (" + operation + ")");
-		}
-		return responseMessage;
-	}
 	
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
