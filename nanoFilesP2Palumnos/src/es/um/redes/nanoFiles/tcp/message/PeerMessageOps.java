@@ -17,6 +17,7 @@ public class PeerMessageOps {
 	public static final byte OPCODE_GET_CHUNK = 0x03;
 	public static final byte OPCODE_SEND_CHUNK = 0x04;
 	public static final byte OPCODE_TRANSFER_END = 0x05;
+	public static final byte OPCODE_FILE_FOUNDED = 0x06;
 
 
 
@@ -31,7 +32,8 @@ public class PeerMessageOps {
 			OPCODE_DOWNLOAD_FILE,
 			OPCODE_GET_CHUNK,
 			OPCODE_SEND_CHUNK,
-			OPCODE_TRANSFER_END
+			OPCODE_TRANSFER_END,
+			OPCODE_FILE_FOUNDED
 	};
 	private static final String[] _valid_operations_str = { 
 			"INVALID_OPCODE",
@@ -39,7 +41,8 @@ public class PeerMessageOps {
 			"DOWNLOAD_FILE",
 			"GET_CHUNK",
 			"SEND_CHUNK",
-			"TRANSFER_END"
+			"TRANSFER_END",
+			"FILE_FOUNDED"
 	};
 
 	private static Map<String, Byte> _operation_to_opcode;

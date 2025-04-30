@@ -14,9 +14,6 @@ import es.um.redes.nanoFiles.util.FileInfo;
 
 public class PeerMessage {
 
-
-
-
 	private byte opcode;
 
 	/*
@@ -42,10 +39,14 @@ public class PeerMessage {
 	
 	// Constructores para crear los mensajes
 	
-	// DownloadFile
-	public PeerMessage(byte op, byte[] fileHash) {
-		opcode = op;
-		this.fileHash = fileHash;
+	public PeerMessage(byte op, byte[] campo2) {
+		if(op == 0x02) { // DownloadFile
+			opcode = op;
+			this.fileHash = campo2;
+		} else if (op == 0x04){ // SendChunk
+			opcode = op; 
+			this.data = campo2;
+		}
 	}
 	// GetChunck
 	public PeerMessage(byte op, long fileOffset, int chunkSize) {
@@ -54,11 +55,6 @@ public class PeerMessage {
 		this.chunkSize = chunkSize;
 	}
 	
-	// SendChunck
-	public PeerMessage(byte op, byte[] data) {
-		opcode = op;
-		this.data = data;
-	}
 
 	/*
 	 * DONE: (Boletín MensajesBinarios) Crear métodos getter y setter para obtener
@@ -100,7 +96,7 @@ public class PeerMessage {
 	 */
 	public static PeerMessage readMessageFromInputStream(DataInputStream dis) throws IOException {
 		/*
-		 * TODO: (Boletín MensajesBinarios) En función del tipo de mensaje, leer del
+		 * DONE: (Boletín MensajesBinarios) En función del tipo de mensaje, leer del
 		 * socket a través del "dis" el resto de campos para ir extrayendo con los
 		 * valores y establecer los atributos del un objeto DirMessage que contendrá
 		 * toda la información del mensaje, y que será devuelto como resultado. NOTA:
@@ -112,6 +108,7 @@ public class PeerMessage {
 		switch (opcode) {
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:
+			case PeerMessageOps.OPCODE_FILE_FOUNDED:
 				break;
 				
 			case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
@@ -158,6 +155,7 @@ public class PeerMessage {
 		
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:
+			case PeerMessageOps.OPCODE_FILE_FOUNDED:
 				break;
 			
 			case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
