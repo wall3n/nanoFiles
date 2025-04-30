@@ -216,7 +216,7 @@ public class NFDirectoryServer {
 		 * contendrán los valores adecuados para los diferentes campos del mensaje a
 		 * enviar como respuesta (operation, etc.)
 		 */
-		DirMessage messageToClient = new DirMessage(DirMessageOps.OPERATION_RESPONSE);
+		DirMessage messageToClient = new DirMessage(DirMessageOps.OPERATION_INVALID);
 
 
 
@@ -228,12 +228,10 @@ public class NFDirectoryServer {
 			 * cliente coincide con el nuestro.
 			 */
 			if(messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
-				messageToClient.setOperationStatus("success");
-				messageToClient.setResponseMessage("Welcome");
+				messageToClient.setOperation(DirMessageOps.OPERATION_PING_OK);
 				System.out.println("Login succed!!");
 			} else {
-				messageToClient.setOperationStatus("denied");
-				messageToClient.setResponseMessage("Protocol not compatible");
+				messageToClient.setOperation(DirMessageOps.OPERATION_BAD_PROTOCOL);
 				System.err.println("Login denied - Bad protocol");
 			}
 			/*
