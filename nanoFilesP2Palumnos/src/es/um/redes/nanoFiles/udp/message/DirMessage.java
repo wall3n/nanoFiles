@@ -139,6 +139,16 @@ public class DirMessage {
 		return protocolId;
 	}
 	
+	public void setFilename(String filename) {
+		if(!DirMessage.filenameAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getFilename called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		this.filename = filename;
+	}
+	
 	public String getFilename() {
 		if(!DirMessage.filenameAllowedOp.contains(operation)) {
 			throw new RuntimeException(
@@ -147,6 +157,16 @@ public class DirMessage {
 		}
 		
 		return filename;
+	}
+	
+	public void setSize(String size) {
+		if(!DirMessage.sizeAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getSize called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		this.size = size;
 	}
 	
 	public String getSize() {
@@ -159,6 +179,16 @@ public class DirMessage {
 		return size;
 	}
 	
+	public void setHash(String hash) {
+		if(!DirMessage.hashAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getHash called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		this.hash = hash;
+	}
+	
 	public String getHash() {
 		if(!DirMessage.hashAllowedOp.contains(operation)) {
 			throw new RuntimeException(
@@ -169,6 +199,16 @@ public class DirMessage {
 		return hash;
 	}
 	
+	public void setPort(String port) {
+		if(!DirMessage.portAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getPort called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		this.port = port;
+	}
+	
 	public String getPort() {
 		if(!DirMessage.portAllowedOp.contains(operation)) {
 			throw new RuntimeException(
@@ -177,6 +217,16 @@ public class DirMessage {
 		}
 		
 		return port;
+	}
+	
+	public void setPeer(String peer) {
+		if(!operation.equals(DirMessageOps.OPERATION_DOWNLOAD_OK)) {
+			throw new RuntimeException(
+					"DirMessage: getPeer called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		this.peer = peer;
 	}
 	
 	public String getPeer() {
@@ -207,8 +257,11 @@ public class DirMessage {
 		 * delimitador DELIMITER, y guardarlo en variables locales.
 		 */
 
+		// Código de depuración
 		// System.out.println("DirMessage read from socket:");
 		// System.out.println(message);
+		
+		
 		String[] lines = message.split(END_LINE + "");
 		// Local variables to save data during parsing
 		DirMessage m = null;
