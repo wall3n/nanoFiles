@@ -1,7 +1,8 @@
 package es.um.redes.nanoFiles.udp.message;
 
-
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Clase que modela los mensajes del protocolo de comunicación entre pares para
@@ -17,13 +18,14 @@ public class DirMessage {
 
 	private static final char DELIMITER = ':'; // Define el delimitador
 	private static final char END_LINE = '\n'; // Define el carácter de fin de línea
+	private static final String ITEM_SEPARATOR = ","; //Definimos el separador para listas
 
 	/**
 	 * Nombre del campo que define el tipo de mensaje (primera línea)
 	 */
 	private static final String FIELDNAME_OPERATION = "operation";
 	/*
-	 * TODO: (Boletín MensajesASCII) Definir de manera simbólica los nombres de
+	 * DONE: (Boletín MensajesASCII) Definir de manera simbólica los nombres de
 	 * todos los campos que pueden aparecer en los mensajes de este protocolo
 	 * (formato campo:valor)
 	 */
@@ -45,7 +47,7 @@ public class DirMessage {
 	 */
 	private String protocolId;
 	/*
-	 * TODO: (Boletín MensajesASCII) Crear un atributo correspondiente a cada uno de
+	 * DONE: (Boletín MensajesASCII) Crear un atributo correspondiente a cada uno de
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
 	private String filename;
@@ -62,10 +64,44 @@ public class DirMessage {
 	}
 
 	/*
-	 * TODO: (Boletín MensajesASCII) Crear diferentes constructores adecuados para
+	 * DONE: (Boletín MensajesASCII) Crear diferentes constructores adecuados para
 	 * construir mensajes de diferentes tipos con sus correspondientes argumentos
 	 * (campos del mensaje)
 	 */
+	
+	// Constructor filelist_ok
+	public DirMessage(String op, String[] files, String[] sizes, String[] hashes) {
+		operation = op;
+		filename = String.join(DirMessage.ITEM_SEPARATOR, files);
+		size = String.join(DirMessage.ITEM_SEPARATOR, sizes);
+		hash = String.join(DirMessage.ITEM_SEPARATOR, hashes);
+	}
+	
+	// Constructor serve
+	public DirMessage(String op, String protocolId, String port, String[] filenames, String[] sizes, String[] hashes) {
+		operation = op;
+		this.protocolId = protocolId;
+		this.port = port;
+		filename = String.join(DirMessage.ITEM_SEPARATOR, files);
+		size = String.join(DirMessage.ITEM_SEPARATOR, sizes);
+		hash = String.join(DirMessage.ITEM_SEPARATOR, hashes);
+	}
+	
+	// Constructor download_request
+	public DirMessage(String op, String protocolId, String filename) {
+		operation = op;
+		this.protocolId = protocolId;
+		this.filename = filename;
+	}
+	
+	// Constructor download_ok
+	public DirMessage(String op, String filename, String hash, String[] peers, String[] ports) {
+		operation = op;
+		this.filename = filename;
+		this.hash = hash;
+		peer = String.join(DirMessage.ITEM_SEPARATOR, peers);
+		port = String.join(ITEM_SEPARATOR, ports);
+	}
 	
 
 	public String getOperation() {
@@ -73,13 +109,21 @@ public class DirMessage {
 	}
 
 	/*
-	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
+	 * DONE: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
 	 * compruebe que no se modifica/obtiene el valor de un campo (atributo) que no
 	 * esté definido para el tipo de mensaje dado por "operation".
 	 */
+	
+	// Creamos estructuras para que ver que conjunto de operaciones pueden acceder a los métodos de cada atributo
+	private static final Set<String> protocolIdAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_PING, DirMessageOps.OPERATION_FILELIST_REQUEST, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_REQUEST));
+	private static final Set<String> filenameAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_FILELIST_OK, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_REQUEST, DirMessageOps.OPERATION_DOWNLOAD_OK));
+	private static final Set<String> sizeAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_FILELIST_OK, DirMessageOps.OPERATION_SERVE));
+	private static final Set<String> hashAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_FILELIST_OK, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_OK));
+	private static final Set<String> portAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_OK));
+	
 	public void setProtocolID(String protocolIdent) {
-		if (!operation.equals(DirMessageOps.OPERATION_PING)) {
+		if (!DirMessage.protocolIdAllowedOp.contains(operation)) {
 			throw new RuntimeException(
 					"DirMessage: setProtocolId called for message of unexpected type (" + operation + ")");
 		}
@@ -87,12 +131,62 @@ public class DirMessage {
 	}
 
 	public String getProtocolId() {
-		if (!operation.equals(DirMessageOps.OPERATION_PING)) {
+		if (!DirMessage.protocolIdAllowedOp.contains(operation)) {
 			throw new RuntimeException(
 					"DirMessage: getProtocolId called for message of unexpected type (" + operation + ")");
 		}
 
 		return protocolId;
+	}
+	
+	public String getFilename() {
+		if(!DirMessage.filenameAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getFilename called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		return filename;
+	}
+	
+	public String getSize() {
+		if(!DirMessage.sizeAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getSize called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		return size;
+	}
+	
+	public String getHash() {
+		if(!DirMessage.hashAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getHash called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		return hash;
+	}
+	
+	public String getPort() {
+		if(!DirMessage.portAllowedOp.contains(operation)) {
+			throw new RuntimeException(
+					"DirMessage: getPort called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		return port;
+	}
+	
+	public String getPeer() {
+		if(!operation.equals(DirMessageOps.OPERATION_DOWNLOAD_OK)) {
+			throw new RuntimeException(
+					"DirMessage: getPeer called for message of unexpected type (" + operation + ")"
+			);
+		}
+		
+		return peer;
 	}
 
 	
