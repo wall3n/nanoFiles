@@ -224,9 +224,20 @@ public class NFDirectoryServer {
 		switch (operation) {
 		case DirMessageOps.OPERATION_PING: {
 			/*
-			 * TODO: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
+			 * DONE: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
+			/*
+			 * DONE: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
+			 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
+			 * resultado del método.
+			 */
+			/*
+			 * DONE: (Boletín MensajesASCII) Imprimimos por pantalla el resultado de
+			 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
+			 * modo de depuración en el servidor
+			 */
+			
 			if(messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
 				messageToClient.setOperation(DirMessageOps.OPERATION_PING_OK);
 				System.out.println("Login succed!!");
@@ -234,18 +245,25 @@ public class NFDirectoryServer {
 				messageToClient.setOperation(DirMessageOps.OPERATION_BAD_PROTOCOL);
 				System.err.println("Login denied - Bad protocol");
 			}
-			/*
-			 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
-			 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
-			 * resultado del método.
-			 */
-			/*
-			 * TODO: (Boletín MensajesASCII) Imprimimos por pantalla el resultado de
-			 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
-			 * modo de depuración en el servidor
-			 */
+			
 			break;
 		}
+		
+		case DirMessageOps.OPERATION_SERVE: {
+			System.out.println(messageFromClientStr);
+			
+			if(!messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				messageToClient.setOperation(DirMessageOps.OPERATION_BAD_PROTOCOL);
+				System.err.println("Incorrect protocol");
+				break;
+			}
+			
+			messageToClient.setOperation(DirMessageOps.OPERATION_SERVE_OK);
+			
+			break;
+		}
+		
+		
 
 
 
@@ -255,7 +273,7 @@ public class NFDirectoryServer {
 		}
 
 		/*
-		 * TODO: (Boletín MensajesASCII) Convertir a String el objeto DirMessage
+		 * DONE: (Boletín MensajesASCII) Convertir a String el objeto DirMessage
 		 * (msgToSend) con el mensaje de respuesta a enviar, extraer los bytes en que se
 		 * codifica el string y finalmente enviarlos en un datagrama
 		 */

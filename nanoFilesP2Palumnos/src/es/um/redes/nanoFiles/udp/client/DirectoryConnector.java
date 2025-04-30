@@ -272,10 +272,54 @@ public class DirectoryConnector {
 		boolean success = false;
 
 		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
-
-
-
+		/*
+		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
+		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
+		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 4.Enviar
+		 * datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 5.Convertir
+		 * respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
+		 * 6.Extraer datos del objeto DirMessage y procesarlos 7.Devolver éxito/fracaso
+		 * de la operación
+		 */
+		
+		DirMessage messageToDir = new DirMessage(DirMessageOps.OPERATION_SERVE);
+		messageToDir.setProtocolID(NanoFiles.PROTOCOL_ID);
+		messageToDir.setPort(Integer.toString(serverPort));
+		
+		String[] filenames = new String[files.length];
+		String[] sizes = new String[files.length];
+		String[] hashes = new String[files.length];
+		
+		int i = 0;
+		for(FileInfo file : files) {
+			filenames[i] = file.fileName;
+			sizes[i] = Long.toString(file.fileSize);
+			hashes[i++] = file.fileHash;
+		}
+		
+		messageToDir.setFilename(String.join(",", filenames));
+		messageToDir.setSize(String.join(",", sizes));
+		messageToDir.setHash(String.join(",", hashes));
+		
+		byte[] byteMessageToDir = messageToDir.toString().getBytes();
+		
+		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
+		
+		String sRes = new String(response, 0, response.length);
+		
+		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_SERVE_OK)) {
+			success = true;
+			System.out.println("Directory registered!");
+		} else {
+			System.err.println("Serve failed");
+		}
+		
 		return success;
+		
 	}
 
 	/**
