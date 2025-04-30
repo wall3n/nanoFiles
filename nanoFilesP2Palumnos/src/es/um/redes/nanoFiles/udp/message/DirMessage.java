@@ -82,7 +82,7 @@ public class DirMessage {
 		operation = op;
 		this.protocolId = protocolId;
 		this.port = port;
-		filename = String.join(DirMessage.ITEM_SEPARATOR, files);
+		filename = String.join(DirMessage.ITEM_SEPARATOR, filenames);
 		size = String.join(DirMessage.ITEM_SEPARATOR, sizes);
 		hash = String.join(DirMessage.ITEM_SEPARATOR, hashes);
 	}
@@ -252,7 +252,7 @@ public class DirMessage {
 	 */
 	public static DirMessage fromString(String message) {
 		/*
-		 * TODO: (Boletín MensajesASCII) Usar un bucle para parsear el mensaje línea a
+		 * DONE: (Boletín MensajesASCII) Usar un bucle para parsear el mensaje línea a
 		 * línea, extrayendo para cada línea el nombre del campo y el valor, usando el
 		 * delimitador DELIMITER, y guardarlo en variables locales.
 		 */
@@ -289,30 +289,45 @@ public class DirMessage {
 				break;
 			}
 			
-			case FIELDNAME_OPERATION_RESPONSE: {
+			case FIELDNAME_FILENAME: {
 				if(m == null) {
 					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
 					System.exit(-1);
 				}
-				m.setOperationResponse(value);
+				m.setFilename(value);
 				break;
 			}
 			
-			case FIELDNAME_OPERATION_STATUS: {
+			case FIELDNAME_SIZE: {
 				if(m == null) {
 					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
 					System.exit(-1);
 				}
-				m.setOperationStatus(value);
+				m.setSize(value);
 				break;
 			}
-			
-			case FIELDNAME_RESPONSE_MESSAGE: {
+			case FIELDNAME_HASH: {
 				if(m == null) {
 					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
 					System.exit(-1);
 				}
-				m.setResponseMessage(value);
+				m.setHash(value);
+				break;
+			}
+			case FIELDNAME_PORT: {
+				if(m == null) {
+					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
+					System.exit(-1);
+				}
+				m.setPort(value);
+				break;
+			}
+			case FIELDNAME_PEER: {
+				if(m == null) {
+					System.err.println("WRONG FORMAT: Operation field must exist always before any atribute");
+					System.exit(-1);
+				}
+				m.setPeer(value);
 				break;
 			}
 
@@ -351,13 +366,7 @@ public class DirMessage {
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
 			break;
 		}
-		case DirMessageOps.OPERATION_RESPONSE: {
-			
-			sb.append(FIELDNAME_OPERATION_RESPONSE + DELIMITER + operationResponse + END_LINE);
-			sb.append(FIELDNAME_OPERATION_STATUS + DELIMITER + operationStatus + END_LINE);
-			sb.append(FIELDNAME_RESPONSE_MESSAGE + DELIMITER + responseMessage + END_LINE);
-			break;
-		}
+		
 		}
 
 
