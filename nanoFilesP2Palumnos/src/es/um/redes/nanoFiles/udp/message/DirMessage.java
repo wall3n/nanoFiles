@@ -366,6 +366,60 @@ public class DirMessage {
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
 			break;
 		}
+		case DirMessageOps.OPERATION_PING_OK: {
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_BAD_PROTOCOL: {
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_FILELIST_REQUEST: {
+			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_FILELIST_OK: {
+			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
+			sb.append(FIELDNAME_SIZE + DELIMITER + size + END_LINE);
+			sb.append(FIELDNAME_HASH + DELIMITER + hash + END_LINE);
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_SERVE: {
+			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+			sb.append(FIELDNAME_PORT + DELIMITER + port + END_LINE);
+			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
+			sb.append(FIELDNAME_SIZE + DELIMITER + size + END_LINE);
+			sb.append(FIELDNAME_HASH + DELIMITER + hash + END_LINE);
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_SERVE_OK: {
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_DOWNLOAD_REQUEST: {
+			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_DOWNLOAD_OK: {
+			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
+			sb.append(FIELDNAME_HASH + DELIMITER + hash + END_LINE);
+			sb.append(FIELDNAME_PEER + DELIMITER + peer + END_LINE);
+			sb.append(FIELDNAME_PORT + DELIMITER + port + END_LINE);
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_FILE_NOT_FOUND: {
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_FILE_AMBIGUOUS: {
+			break;
+		}
 		
 		}
 
