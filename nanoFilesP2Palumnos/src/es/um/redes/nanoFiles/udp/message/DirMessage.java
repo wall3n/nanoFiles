@@ -107,6 +107,10 @@ public class DirMessage {
 	public String getOperation() {
 		return operation;
 	}
+	
+	public void setOperation(String op) {
+		operation = op;
+	}
 
 	/*
 	 * DONE: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
