@@ -310,9 +310,6 @@ public class DirectoryConnector {
 	public InetSocketAddress[] getServersSharingThisFile(String filenameSubstring) {
 		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
 		InetSocketAddress[] serversList = new InetSocketAddress[0];
-
-
-
 		return serversList;
 	}
 
