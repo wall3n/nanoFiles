@@ -250,12 +250,11 @@ public class DirectoryConnector {
 		
 		DirMessage messageFromDir = DirMessage.fromString(sRes);
 		
-		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_RESPONSE)) {
-			success = messageFromDir.getOperationStatus().equals("success") && messageFromDir.getResponseMessage().equals("Welcome");
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
+			success = true;
 		} else {
-			System.err.println("La respuesta no fue del tipo deseado");
+			System.err.println("Ping failed");
 		}
-		 
 		
 		return success;
 	}
