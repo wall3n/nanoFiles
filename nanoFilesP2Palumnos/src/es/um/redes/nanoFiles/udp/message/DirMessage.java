@@ -356,7 +356,7 @@ public class DirMessage {
 		StringBuffer sb = new StringBuffer();
 		sb.append(FIELDNAME_OPERATION + DELIMITER + operation + END_LINE); // Construimos el campo
 		/*
-		 * TODO: (Boletín MensajesASCII) En función de la operación del mensaje, crear
+		 * DONE: (Boletín MensajesASCII) En función de la operación del mensaje, crear
 		 * una cadena la operación y concatenar el resto de campos necesarios usando los
 		 * valores de los atributos del objeto.
 		 */
