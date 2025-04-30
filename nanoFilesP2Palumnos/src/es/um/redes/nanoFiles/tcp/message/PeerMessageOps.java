@@ -8,28 +8,41 @@ public class PeerMessageOps {
 	public static final byte OPCODE_INVALID_CODE = 0;
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Añadir aquí todas las constantes que definen
+	 * DONE: (Boletín MensajesBinarios) Añadir aquí todas las constantes que definen
 	 * los diferentes tipos de mensajes del protocolo de comunicación con un par
 	 * servidor de ficheros (valores posibles del campo "operation").
 	 */
-
+	public static final byte OPCODE_FILE_NOT_FOUND = 0x01;
+	public static final byte OPCODE_DOWNLOAD_FILE = 0x02;
+	public static final byte OPCODE_GET_CHUNK = 0x03;
+	public static final byte OPCODE_SEND_CHUNK = 0x04;
+	public static final byte OPCODE_TRANSFER_END = 0x05;
+	public static final byte OPCODE_FILE_FOUNDED = 0x06;
 
 
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Definir constantes con nuevos opcodes de
+	 * DONE: (Boletín MensajesBinarios) Definir constantes con nuevos opcodes de
 	 * mensajes definidos anteriormente, añadirlos al array "valid_opcodes" y añadir
 	 * su representación textual a "valid_operations_str" EN EL MISMO ORDEN.
 	 */
-	private static final Byte[] _valid_opcodes = { OPCODE_INVALID_CODE,
-
-
-
+	private static final Byte[] _valid_opcodes = {
+			OPCODE_INVALID_CODE,
+			OPCODE_FILE_NOT_FOUND,
+			OPCODE_DOWNLOAD_FILE,
+			OPCODE_GET_CHUNK,
+			OPCODE_SEND_CHUNK,
+			OPCODE_TRANSFER_END,
+			OPCODE_FILE_FOUNDED
 	};
-	private static final String[] _valid_operations_str = { "INVALID_OPCODE",
-
-
-
+	private static final String[] _valid_operations_str = { 
+			"INVALID_OPCODE",
+			"FILE_NOT_FOUND",
+			"DOWNLOAD_FILE",
+			"GET_CHUNK",
+			"SEND_CHUNK",
+			"TRANSFER_END",
+			"FILE_FOUNDED"
 	};
 
 	private static Map<String, Byte> _operation_to_opcode;

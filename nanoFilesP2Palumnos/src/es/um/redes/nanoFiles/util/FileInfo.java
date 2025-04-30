@@ -128,4 +128,19 @@ public class FileInfo {
 		matchingFiles.toArray(result);
 		return result;
 	}
+	
+	public static FileInfo[] lookupHashSubstring(FileInfo[] files, String fileHashSubstr) {
+		String needle = fileHashSubstr;
+		Vector<FileInfo> matchingFiles = new Vector<FileInfo>();
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].fileHash.contains(needle)) {
+				matchingFiles.add(files[i]);
+			}
+		}
+		FileInfo[] result = new FileInfo[matchingFiles.size()];
+		matchingFiles.toArray(result);
+		return result;
+	}
+	
+	
 }

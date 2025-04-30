@@ -14,9 +14,6 @@ import es.um.redes.nanoFiles.util.FileInfo;
 
 public class PeerMessage {
 
-
-
-
 	private byte opcode;
 
 	/*
@@ -24,8 +21,12 @@ public class PeerMessage {
 	 * específicos para crear mensajes con otros campos, según sea necesario
 	 * 
 	 */
-
-
+	
+	// Atributos para crear los mensajes
+	private byte[] fileHash; 
+	private long fileOffset;
+	private int chunkSize;
+	private byte[] data;
 
 
 	public PeerMessage() {
@@ -35,9 +36,28 @@ public class PeerMessage {
 	public PeerMessage(byte op) {
 		opcode = op;
 	}
+	
+	// Constructores para crear los mensajes
+	
+	public PeerMessage(byte op, byte[] campo2) {
+		if(op == 0x02) { // DownloadFile
+			opcode = op;
+			this.fileHash = campo2;
+		} else if (op == 0x04){ // SendChunk
+			opcode = op; 
+			this.data = campo2;
+		}
+	}
+	// GetChunck
+	public PeerMessage(byte op, long fileOffset, int chunkSize) {
+		opcode = op;
+		this.fileOffset = fileOffset;
+		this.chunkSize = chunkSize;
+	}
+	
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Crear métodos getter y setter para obtener
+	 * DONE: (Boletín MensajesBinarios) Crear métodos getter y setter para obtener
 	 * los valores de los atributos de un mensaje. Se aconseja incluir código que
 	 * compruebe que no se modifica/obtiene el valor de un campo (atributo) que no
 	 * esté definido para el tipo de mensaje dado por "operation".
@@ -45,10 +65,25 @@ public class PeerMessage {
 	public byte getOpcode() {
 		return opcode;
 	}
-
-
-
-
+	
+	// Métdos getter para la obtención de los valores de los atributos de un mensaje
+	public byte[] getFileHash() {
+		if (opcode != PeerMessageOps.OPCODE_DOWNLOAD_FILE) throw new IllegalStateException("Invalid access to file Hash");
+		return fileHash;
+	}
+	public long getFileOffset() {
+		if (opcode != PeerMessageOps.OPCODE_GET_CHUNK) throw new IllegalStateException("Invalid access to file Offset");
+		return fileOffset;
+	}
+	public int getChunckSize() {
+		if (opcode != PeerMessageOps.OPCODE_GET_CHUNK) throw new IllegalStateException("Invalid access to chunk Size");
+		return chunkSize;
+	}
+	public byte[] getData() {
+		if (opcode != PeerMessageOps.OPCODE_SEND_CHUNK) throw new IllegalStateException("Invalid access to data");
+		return data;
+	};
+	
 
 	/**
 	 * Método de clase para parsear los campos de un mensaje y construir el objeto
@@ -61,7 +96,7 @@ public class PeerMessage {
 	 */
 	public static PeerMessage readMessageFromInputStream(DataInputStream dis) throws IOException {
 		/*
-		 * TODO: (Boletín MensajesBinarios) En función del tipo de mensaje, leer del
+		 * DONE: (Boletín MensajesBinarios) En función del tipo de mensaje, leer del
 		 * socket a través del "dis" el resto de campos para ir extrayendo con los
 		 * valores y establecer los atributos del un objeto DirMessage que contendrá
 		 * toda la información del mensaje, y que será devuelto como resultado. NOTA:
@@ -71,9 +106,33 @@ public class PeerMessage {
 		PeerMessage message = new PeerMessage();
 		byte opcode = dis.readByte();
 		switch (opcode) {
-
-
-
+			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
+			case PeerMessageOps.OPCODE_TRANSFER_END:
+			case PeerMessageOps.OPCODE_FILE_FOUNDED:
+				break;
+				
+			case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
+				long lengthHash = dis.readLong();
+				if (lengthHash > Integer.MAX_VALUE) throw new IOException("Chunk too large");
+				byte[] fileHash = new byte[(int) lengthHash];
+				dis.readFully(fileHash);
+				message.fileHash = fileHash;
+				break;
+				
+			case PeerMessageOps.OPCODE_GET_CHUNK:
+				message.fileOffset = dis.readLong();
+				message.chunkSize = dis.readInt();
+				break;
+				
+			case PeerMessageOps.OPCODE_SEND_CHUNK:
+				long length = dis.readLong();
+				if (length > Integer.MAX_VALUE) throw new IOException("Chunk too large");
+				byte[] data = new byte[(int) length];
+				dis.readFully(data);
+				message.data = data;
+				break;
+				
+				
 		default:
 			System.err.println("PeerMessage.readMessageFromInputStream doesn't know how to parse this message opcode: "
 					+ PeerMessageOps.opcodeToOperation(opcode));
@@ -84,7 +143,7 @@ public class PeerMessage {
 
 	public void writeMessageToOutputStream(DataOutputStream dos) throws IOException {
 		/*
-		 * TODO (Boletín MensajesBinarios): Escribir los bytes en los que se codifica el
+		 * DONE (Boletín MensajesBinarios): Escribir los bytes en los que se codifica el
 		 * mensaje en el socket a través del "dos", teniendo en cuenta opcode del
 		 * mensaje del que se trata y los campos relevantes en cada caso. NOTA: Usar
 		 * dos.write para leer un array de bytes, dos.writeInt para escribir un entero,
@@ -93,10 +152,28 @@ public class PeerMessage {
 
 		dos.writeByte(opcode);
 		switch (opcode) {
+		
+			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
+			case PeerMessageOps.OPCODE_TRANSFER_END:
+			case PeerMessageOps.OPCODE_FILE_FOUNDED:
+				break;
+			
+			case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
+				dos.writeLong(fileHash.length);
+				dos.write(fileHash);
+				break;
+				
+			case PeerMessageOps.OPCODE_GET_CHUNK:
+				dos.writeLong(fileOffset);
+				dos.writeInt(chunkSize);
+				break;
+				
+			case PeerMessageOps.OPCODE_SEND_CHUNK:
+				dos.writeLong(data.length);
+				dos.write(data);
+				break;
 
-
-
-
+				
 		default:
 			System.err.println("PeerMessage.writeMessageToOutputStream found unexpected message opcode " + opcode + "("
 					+ PeerMessageOps.opcodeToOperation(opcode) + ")");

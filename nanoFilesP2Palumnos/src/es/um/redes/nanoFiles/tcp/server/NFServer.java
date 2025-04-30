@@ -2,10 +2,16 @@ package es.um.redes.nanoFiles.tcp.server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import es.um.redes.nanoFiles.application.NanoFiles;
+import es.um.redes.nanoFiles.tcp.message.PeerMessage;
+import es.um.redes.nanoFiles.tcp.message.PeerMessageOps;
+import es.um.redes.nanoFiles.util.FileInfo;
 
 
 
@@ -29,6 +35,7 @@ public class NFServer implements Runnable {
 		 * DONE: (Boletín SocketsTCP) Crear un socket servidor y ligarlo a la dirección
 		 * de socket anterior
 		 */
+		serverSocket = new ServerSocket();
 		serverSocket.bind(serverSocketAddr);
 		
 	}
@@ -48,16 +55,16 @@ public class NFServer implements Runnable {
 			System.out
 					.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
-		try (ServerSocket serverSocket = new ServerSocket()) {
+		try {
 			while (true) {
 			/*
-			 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
+			 * DONE: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 			 * otros peers que soliciten descargar ficheros.
 			 */
 				Socket socketNew = serverSocket.accept();
 			
 			/*
-			 * TODO: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
+			 * DONE: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
 			 * comunicación con dicho cliente para servir los ficheros solicitados se debe
 			 * implementar en el método serveFilesToClient, al cual hay que pasarle el
 			 * socket devuelto por accept.
@@ -69,8 +76,6 @@ public class NFServer implements Runnable {
 			ex.printStackTrace();
 		}
 
-
-		}
 	}
 
 	/**
@@ -84,6 +89,7 @@ public class NFServer implements Runnable {
 		 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 		 * otros peers que soliciten descargar ficheros
 		 */
+		
 		/*
 		 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
 		 * comunicación con dicho cliente se hace en el método
@@ -123,18 +129,58 @@ public class NFServer implements Runnable {
 		/*
 		 * DONE: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
-		DataInputStream dis = new DataInputStream(socket.getInputStream());
-		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+		System.out.println("ServeFilesToClient Executed");
+		try {
+			DataInputStream dis = new DataInputStream(socket.getInputStream());
+			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+		
 		/*
 		 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
 		 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
 		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
 		 * respuesta.
 		 */
-		while(socket.isConnected()) {
-			String dataFromClient = dis.readUTF();
+			String fileHash = null;
+			while(socket.isConnected()) {
+				try {
+					PeerMessage message = PeerMessage.readMessageFromInputStream(dis);
+					byte opcode = message.getOpcode();
+					FileInfo[] files = NanoFiles.db.getFiles();
+					
+					switch(opcode) {
+						case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
+							FileInfo[] match = FileInfo.lookupHashSubstring(files, message.getFileHash().toString());
+							if(match.length == 0) {
+								// file_not_found 
+								PeerMessage msgNew = new PeerMessage(PeerMessageOps.OPCODE_FILE_NOT_FOUND);
+								msgNew.writeMessageToOutputStream(dos);
+							}else {
+								// file_founded
+								fileHash = message.getFileHash().toString();
+								PeerMessage msgNew = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
+								msgNew.writeMessageToOutputStream(dos);
+							}
+							break;
+						case PeerMessageOps.OPCODE_GET_CHUNK:
+							long offset = message.getFileOffset();
+							int ckSize = message.getChunckSize();
+							String path = NanoFiles.db.lookupFilePath(fileHash);
+							
+						case PeerMessageOps.OPCODE_TRANSFER_END:
+							
+							break;
+							
+					}	
+				} catch (EOFException eof) {
+					System.out.println("Cliente se ha desconectado.");
+					break;
+				}
+			}
+			
+		} catch (IOException ex) {
+			System.out.println("Exception: " + ex.getMessage());
+			ex.printStackTrace();
 		}
-		
 		/*
 		 * TODO: (Boletín SocketsTCP) Para servir un fichero, hay que localizarlo a
 		 * partir de su hash (o subcadena) en nuestra base de datos de ficheros
@@ -145,8 +191,6 @@ public class NFServer implements Runnable {
 		 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
 		 * de su hash completo.
 		 */
-
-
 
 	}
 

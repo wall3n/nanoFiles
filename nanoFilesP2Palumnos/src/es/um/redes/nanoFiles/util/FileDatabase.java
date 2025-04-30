@@ -23,7 +23,7 @@ public class FileDatabase {
 			System.err.println("*WARNING: No files found in folder " + sharedFolder);
 		}
 	}
-
+	
 	public FileInfo[] getFiles() {
 		FileInfo[] fileinfoarray = new FileInfo[files.size()];
 		int numFiles = 0;
