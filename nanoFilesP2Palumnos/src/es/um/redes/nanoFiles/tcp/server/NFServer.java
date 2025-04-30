@@ -8,8 +8,10 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.tcp.message.PeerMessage;
 import es.um.redes.nanoFiles.tcp.message.PeerMessageOps;
+import es.um.redes.nanoFiles.util.FileInfo;
 
 
 
@@ -127,6 +129,7 @@ public class NFServer implements Runnable {
 		/*
 		 * DONE: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
+		System.out.println("ServeFilesToClient Executed");
 		try {
 			DataInputStream dis = new DataInputStream(socket.getInputStream());
 			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -137,19 +140,36 @@ public class NFServer implements Runnable {
 		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
 		 * respuesta.
 		 */
+			String fileHash = null;
 			while(socket.isConnected()) {
 				try {
 					PeerMessage message = PeerMessage.readMessageFromInputStream(dis);
 					byte opcode = message.getOpcode();
+					FileInfo[] files = NanoFiles.db.getFiles();
 					
 					switch(opcode) {
 						case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
-						
+							FileInfo[] match = FileInfo.lookupHashSubstring(files, message.getFileHash().toString());
+							if(match.length == 0) {
+								// file_not_found 
+								PeerMessage msgNew = new PeerMessage(PeerMessageOps.OPCODE_FILE_NOT_FOUND);
+								msgNew.writeMessageToOutputStream(dos);
+							}else {
+								// file_founded
+								fileHash = message.getFileHash().toString();
+								PeerMessage msgNew = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
+								msgNew.writeMessageToOutputStream(dos);
+							}
+							break;
 						case PeerMessageOps.OPCODE_GET_CHUNK:
-						
-						case PeerMessageOps.OPCODE_SEND_CHUNK:
+							long offset = message.getFileOffset();
+							int ckSize = message.getChunckSize();
+							String path = NanoFiles.db.lookupFilePath(fileHash);
 							
 						case PeerMessageOps.OPCODE_TRANSFER_END:
+							
+							break;
+							
 					}	
 				} catch (EOFException eof) {
 					System.out.println("Cliente se ha desconectado.");
