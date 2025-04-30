@@ -1,23 +1,32 @@
 package es.um.redes.nanoFiles.tcp.client;
 
 import java.io.DataInputStream;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+
 import es.um.redes.nanoFiles.tcp.message.PeerMessage;
 import es.um.redes.nanoFiles.tcp.message.PeerMessageOps;
+import es.um.redes.nanoFiles.tcp.server.NFServer;
 import es.um.redes.nanoFiles.util.FileDigest;
 
 //Esta clase proporciona la funcionalidad necesaria para intercambiar mensajes entre el cliente y el servidor
 public class NFConnector {
 	private Socket socket;
 	private InetSocketAddress serverAddr;
+	
+	private DataInputStream dis;
+	private DataOutputStream dos;
+	
+	
 
 
 
@@ -29,14 +38,16 @@ public class NFConnector {
 		 * servidor (IP, puerto). La creación exitosa del socket significa que la
 		 * conexión TCP ha sido establecida.
 		 */
+		Socket socket = new Socket();
+		socket.bind(serverAddr);
 		/*
 		 * TODO: (Boletín SocketsTCP) Se crean los DataInputStream/DataOutputStream a
 		 * partir de los streams de entrada/salida del socket creado. Se usarán para
 		 * enviar (dos) y recibir (dis) datos del servidor.
 		 */
-
-
-
+		dis = new DataInputStream(socket.getInputStream());
+		dos = new DataOutputStream(socket.getOutputStream());
+	
 	}
 
 	public void test() {
@@ -44,6 +55,17 @@ public class NFConnector {
 		 * TODO: (Boletín SocketsTCP) Enviar entero cualquiera a través del socket y
 		 * después recibir otro entero, comprobando que se trata del mismo valor.
 		 */
+		
+		// Enviar
+		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+		dos.writeInt(123);
+		
+		// Recibir
+		int numero = dis.readInt();
+		
+		if(numero == 456) {
+			
+		}
 	}
 
 
