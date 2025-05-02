@@ -19,9 +19,6 @@ import es.um.redes.nanoFiles.util.FileInfo;
 public class NFServer implements Runnable {
 
 	public static final int PORT = 10000;
-
-
-
 	private ServerSocket serverSocket = null;
 
 	public NFServer() throws IOException {
@@ -56,23 +53,31 @@ public class NFServer implements Runnable {
 					.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
 		try {
-			while (true) {
-			/*
-			 * DONE: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
-			 * otros peers que soliciten descargar ficheros.
-			 */
-				Socket socketNew = serverSocket.accept();
+			//while (true) {
+				/*
+				 * DONE: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
+				 * otros peers que soliciten descargar ficheros.
+				 */
 			
-			/*
-			 * DONE: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
-			 * comunicación con dicho cliente para servir los ficheros solicitados se debe
-			 * implementar en el método serveFilesToClient, al cual hay que pasarle el
-			 * socket devuelto por accept.
-			 */
-				serveFilesToClient(socketNew);
-			}
+				
+
+				Socket clientSocket = serverSocket.accept();
+				DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
+				DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
+				/*
+				 * DONE: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
+				 * comunicación con dicho cliente para servir los ficheros solicitados se debe
+				 * implementar en el método serveFilesToClient, al cual hay que pasarle el
+				 * socket devuelto por accept.
+				 */
+				//serveFilesToClient(clientSocket);
+				
+				
+				int entero = dis.readInt();
+				dos.writeInt(entero);
+			//}
 		} catch (IOException ex) {
-			System.out.println("Server exception: " + ex.getMessage());
+			System.out.println("Error test(): " + ex.getMessage());
 			ex.printStackTrace();
 		}
 
@@ -89,13 +94,22 @@ public class NFServer implements Runnable {
 		 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 		 * otros peers que soliciten descargar ficheros
 		 */
-		
 		/*
 		 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
 		 * comunicación con dicho cliente se hace en el método
 		 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
 		 * accept
 		 */
+		try {
+			Socket clientSocket = serverSocket.accept();
+			serveFilesToClient(clientSocket);
+			
+		} catch (IOException ex) {
+			System.out.println("Server exception: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+		
+		
 		/*
 		 * TODO: (Boletín TCPConcurrente) Crear un hilo nuevo de la clase
 		 * NFServerThread, que llevará a cabo la comunicación con el cliente que se
@@ -152,13 +166,13 @@ public class NFServer implements Runnable {
 							FileInfo[] match = FileInfo.lookupHashSubstring(files, message.getFileHash().toString());
 							if(match.length == 0) {
 								// file_not_found 
-								PeerMessage msgNew = new PeerMessage(PeerMessageOps.OPCODE_FILE_NOT_FOUND);
-								msgNew.writeMessageToOutputStream(dos);
+								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_NOT_FOUND);
+								msg.writeMessageToOutputStream(dos);
 							}else {
 								// file_founded
-								fileHash = message.getFileHash().toString();
-								PeerMessage msgNew = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
-								msgNew.writeMessageToOutputStream(dos);
+								fileHash = match[0].fileHash;
+								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
+								msg.writeMessageToOutputStream(dos);
 							}
 							break;
 						case PeerMessageOps.OPCODE_GET_CHUNK:
@@ -167,8 +181,7 @@ public class NFServer implements Runnable {
 							String path = NanoFiles.db.lookupFilePath(fileHash);
 							
 						case PeerMessageOps.OPCODE_TRANSFER_END:
-							
-							break;
+							return;
 							
 					}	
 				} catch (EOFException eof) {

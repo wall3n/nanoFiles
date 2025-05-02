@@ -27,21 +27,16 @@ public class NFConnector {
 	private DataOutputStream dos;
 	
 	
-
-
-
-
 	public NFConnector(InetSocketAddress fserverAddr) throws UnknownHostException, IOException {
 		serverAddr = fserverAddr;
 		/*
-		 * TODO: (Boletín SocketsTCP) Se crea el socket a partir de la dirección del
+		 * DONE: (Boletín SocketsTCP) Se crea el socket a partir de la dirección del
 		 * servidor (IP, puerto). La creación exitosa del socket significa que la
 		 * conexión TCP ha sido establecida.
 		 */
-		Socket socket = new Socket();
-		socket.bind(serverAddr);
+		socket = new Socket(serverAddr.getHostName(), serverAddr.getPort());
 		/*
-		 * TODO: (Boletín SocketsTCP) Se crean los DataInputStream/DataOutputStream a
+		 * DONE: (Boletín SocketsTCP) Se crean los DataInputStream/DataOutputStream a
 		 * partir de los streams de entrada/salida del socket creado. Se usarán para
 		 * enviar (dos) y recibir (dis) datos del servidor.
 		 */
@@ -52,24 +47,26 @@ public class NFConnector {
 
 	public void test() {
 		/*
-		 * TODO: (Boletín SocketsTCP) Enviar entero cualquiera a través del socket y
+		 * DONE: (Boletín SocketsTCP) Enviar entero cualquiera a través del socket y
 		 * después recibir otro entero, comprobando que se trata del mismo valor.
 		 */
-		
-		// Enviar
-		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-		dos.writeInt(123);
-		
-		// Recibir
-		int numero = dis.readInt();
-		
-		if(numero == 456) {
+		try {
+			// Enviar
+			int enteroEnvio = 123;
+			dos.writeInt(enteroEnvio);
 			
+			// Recibir
+			int enteroRecibe = dis.readInt();
+			
+			if(enteroEnvio == enteroRecibe) {
+				System.out.println("Se trata del mismo valor");
+			} else {
+				System.out.println("El valor recibido no coincide");
+			}
+		} catch (IOException ex) {
+			System.out.println("Error en test(): " + ex.getMessage());
 		}
 	}
-
-
-
 
 
 	public InetSocketAddress getServerAddr() {
