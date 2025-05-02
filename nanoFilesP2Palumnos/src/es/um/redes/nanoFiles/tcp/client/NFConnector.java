@@ -69,6 +69,8 @@ public class NFConnector {
 			System.out.println("Error en test(): " + ex.getMessage());
 		}
 	}
+	
+	
 
 
 	public InetSocketAddress getServerAddr() {
