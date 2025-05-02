@@ -109,6 +109,7 @@ public class PeerMessage {
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:
 			case PeerMessageOps.OPCODE_FILE_FOUNDED:
+			case PeerMessageOps.OPCODE_CHUNK_NOT_FOUND:
 				break;
 				
 			case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
@@ -156,6 +157,7 @@ public class PeerMessage {
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:
 			case PeerMessageOps.OPCODE_FILE_FOUNDED:
+			case PeerMessageOps.OPCODE_CHUNK_NOT_FOUND:
 				break;
 			
 			case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
