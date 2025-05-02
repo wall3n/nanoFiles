@@ -103,8 +103,9 @@ public class PeerMessage {
 		 * Usar dis.readFully para leer un array de bytes, dis.readInt para leer un
 		 * entero, etc.
 		 */
-		PeerMessage message = new PeerMessage();
 		byte opcode = dis.readByte();
+		PeerMessage message = new PeerMessage(opcode);
+		
 		switch (opcode) {
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:

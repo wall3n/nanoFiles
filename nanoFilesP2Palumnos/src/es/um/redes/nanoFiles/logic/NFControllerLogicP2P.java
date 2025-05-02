@@ -18,8 +18,6 @@ public class NFControllerLogicP2P {
 	private NFServer fileServer = null;
 
 
-
-
 	protected NFControllerLogicP2P() {
 	}
 
@@ -127,11 +125,15 @@ public class NFControllerLogicP2P {
 		/*
 		 * TODO: Crear un objeto NFConnector distinto para establecer una conexión TCP
 		 * con cada servidor de ficheros proporcionado, y usar dicho objeto para
-		 * descargar trozos (chunks) del fichero. Se debe comprobar previamente si ya
-		 * existe un fichero con el mismo nombre (localFileName) en esta máquina, en
-		 * cuyo caso se informa y no se realiza la descarga. Se debe asegurar que el
-		 * fichero cuyos datos se solicitan es el mismo para todos los servidores
-		 * involucrados (el fichero está identificado por su hash). Una vez descargado,
+		 * descargar trozos (chunks) del fichero. 
+		 * 
+		 * Se debe comprobar previamente si ya existe un fichero con el mismo nombre 
+		 * (localFileName) en esta máquina, en cuyo caso se informa y no se realiza la descarga. 
+		 * 
+		 * Se debe asegurar que el fichero cuyos datos se solicitan es el mismo para todos los servidores
+		 * involucrados (el fichero está identificado por su hash). 
+		 * 
+		 * Una vez descargado,
 		 * se debe comprobar la integridad del mismo calculando el hash mediante
 		 * FileDigest.computeFileChecksumString. Si todo va bien, imprimir resumen de la
 		 * descarga informando de los trozos obtenidos de cada servidor involucrado. Las
@@ -139,11 +141,27 @@ public class NFControllerLogicP2P {
 		 * método. Si se produce una excepción de entrada/salida (error del que no es
 		 * posible recuperarse), se debe informar sin abortar el programa
 		 */
-
-
-
-
-		return downloaded;
+			if( FileInfo.lookupFilenameSubstring(NanoFiles.db.getFiles(), localFileName).length != 0) {
+				System.err.println("No se puede realizar la descarga porque ya existe un fichero con el nombre: " + localFileName );
+				return false;
+				
+			} else {
+	
+				for (InetSocketAddress fserverAddr : serverAddressList) {
+					try {
+						NFConnector conectServer = new NFConnector(fserverAddr);
+						// Pedir a cada servidor el chunk especifico
+						
+						
+						
+					} catch (IOException ex) {
+						System.out.println("Error al establecer conexión TCP: " + ex.getMessage());
+					}
+				}
+			}
+		
+			
+				
 	}
 
 	/**
