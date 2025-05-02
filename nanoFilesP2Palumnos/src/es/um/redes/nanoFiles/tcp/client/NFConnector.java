@@ -52,17 +52,19 @@ public class NFConnector {
 		 */
 		try {
 			// Enviar
-			int enteroEnvio = 123;
-			dos.writeInt(enteroEnvio);
+			PeerMessage msgEnvia = new PeerMessage(PeerMessageOps.OPCODE_DOWNLOAD_FILE, "gsjsks".getBytes());
+			System.out.println("El mensaje generado tiene el codigo de operacion: " + msgEnvia.getOpcode());
+			msgEnvia.writeMessageToOutputStream(dos);
+			
 			
 			// Recibir
-			int enteroRecibe = dis.readInt();
-			
-			if(enteroEnvio == enteroRecibe) {
-				System.out.println("Se trata del mismo valor");
+			PeerMessage msgRecibe = PeerMessage.readMessageFromInputStream(dis);
+			if(msgRecibe.getOpcode() == PeerMessageOps.OPCODE_FILE_FOUNDED) {
+				System.out.println("Comunicacion existosa");
 			} else {
-				System.out.println("El valor recibido no coincide");
+				System.err.println("Comunicacion fallida");
 			}
+			
 		} catch (IOException ex) {
 			System.out.println("Error en test(): " + ex.getMessage());
 		}

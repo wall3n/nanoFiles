@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLSyntaxErrorException;
 
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.tcp.message.PeerMessage;
@@ -53,29 +54,24 @@ public class NFServer implements Runnable {
 					.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
 		try {
-			//while (true) {
+			while (true) {
 				/*
 				 * DONE: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 				 * otros peers que soliciten descargar ficheros.
 				 */
-			
-				
 
 				Socket clientSocket = serverSocket.accept();
-				DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
-				DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
 				/*
 				 * DONE: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
 				 * comunicación con dicho cliente para servir los ficheros solicitados se debe
 				 * implementar en el método serveFilesToClient, al cual hay que pasarle el
 				 * socket devuelto por accept.
 				 */
-				//serveFilesToClient(clientSocket);
+				serveFilesToClient(clientSocket);
 				
 				
-				int entero = dis.readInt();
-				dos.writeInt(entero);
-			//}
+				
+			}
 		} catch (IOException ex) {
 			System.out.println("Error test(): " + ex.getMessage());
 			ex.printStackTrace();
@@ -144,9 +140,30 @@ public class NFServer implements Runnable {
 		 * DONE: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
 		System.out.println("ServeFilesToClient Executed");
+		
 		try {
-			DataInputStream dis = new DataInputStream(socket.getInputStream());
-			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+			
+			while(socket.isConnected()) {
+				try {
+					DataInputStream dis = new DataInputStream(socket.getInputStream());
+					DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+					
+					PeerMessage msgRecibe = PeerMessage.readMessageFromInputStream(dis);
+					
+					if(msgRecibe.getOpcode() == PeerMessageOps.OPCODE_DOWNLOAD_FILE) {
+						System.out.println("Se ha solicitado una descarga");
+						PeerMessage msgEnvia = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
+						msgEnvia.writeMessageToOutputStream(dos);
+					} else {
+						System.err.println(msgRecibe.getOpcode());
+						System.err.println("Codigo de error incorrecto");
+					}
+				} catch (EOFException eof) {
+					System.out.println("Cliente se ha desconectado.");
+					break;
+				}
+			}
+			
 		
 		/*
 		 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
@@ -154,7 +171,7 @@ public class NFServer implements Runnable {
 		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
 		 * respuesta.
 		 */
-			String fileHash = null;
+			/*String fileHash = null;
 			while(socket.isConnected()) {
 				try {
 					PeerMessage message = PeerMessage.readMessageFromInputStream(dis);
@@ -188,7 +205,7 @@ public class NFServer implements Runnable {
 					System.out.println("Cliente se ha desconectado.");
 					break;
 				}
-			}
+			}*/
 			
 		} catch (IOException ex) {
 			System.out.println("Exception: " + ex.getMessage());
