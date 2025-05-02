@@ -334,8 +334,39 @@ public class DirectoryConnector {
 	public FileInfo[] getFileList() {
 		FileInfo[] filelist = new FileInfo[0];
 		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
-
-
+		
+		/*
+		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
+		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
+		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 4.Enviar
+		 * datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 5.Convertir
+		 * respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
+		 * 6.Extraer datos del objeto DirMessage y procesarlos 7.Devolver éxito/fracaso
+		 * de la operación
+		 */
+		
+		DirMessage messageToDir = new DirMessage(DirMessageOps.OPERATION_FILELIST_REQUEST);
+		messageToDir.setProtocolID(NanoFiles.PROTOCOL_ID);
+		
+		byte[] byteMessageToDir = messageToDir.toString().getBytes();
+		
+		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
+		
+		String sRes = new String(response, 0, response.length);
+		
+		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		String[] filenames = messageFromDir.getFilename().split("[,\\n]");
+		String[] sizes = messageFromDir.getSize().split("[,\\n]");
+		String[] hashes = messageFromDir.getSize().split("[,\\n]");
+		FileInfo[] files = new FileInfo[filenames.length];
+		
+		for(int i = 0; i < filenames.length; i++) {
+			FileInfo addedFile = new FileInfo(hashes[i], filenames[i], Long.parseLong(sizes[i]), "");
+			files[i] = addedFile;
+		}
 
 		return filelist;
 	}
