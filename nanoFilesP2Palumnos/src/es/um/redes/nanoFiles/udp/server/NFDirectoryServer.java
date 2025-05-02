@@ -5,8 +5,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.message.DirMessage;
@@ -30,7 +35,9 @@ public class NFDirectoryServer {
 	 * funcionalidad del sistema nanoFilesP2P: ficheros publicados, servidores
 	 * registrados, etc.
 	 */
-
+	
+	private Map<InetSocketAddress, List<FileInfo>> peerFiles;
+	private Map<String, Set<InetSocketAddress>> fileOwners;
 
 
 
@@ -56,7 +63,8 @@ public class NFDirectoryServer {
 		 * TODO: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
 		 * servidor de directorio: ficheros, etc.)
 		 */
-		
+		peerFiles = new HashMap<>();
+		fileOwners = new HashMap<>();
 		
 
 
@@ -195,6 +203,7 @@ public class NFDirectoryServer {
 		 * métodos "getter" para procesar el mensaje y consultar/modificar el estado del
 		 * servidor.
 		 */
+		InetSocketAddress clientAddr = (InetSocketAddress) pkt.getSocketAddress();
 		String messageFromClientStr = new String(pkt.getData(), 0, pkt.getLength());
 		System.out.println(messageFromClientStr);
 		
@@ -258,12 +267,63 @@ public class NFDirectoryServer {
 				break;
 			}
 			
+			// TODO: Guardar los archivos en las estructuras de datos
+			String[] filenames = messageFromClient.getFilename().split("[,\\n]");
+			String[] sizes = messageFromClient.getSize().split("[,\\n]");
+			String[] hashes = messageFromClient.getSize().split("[,\\n]");
+			List<FileInfo> newFiles = new ArrayList<FileInfo>();
+		
+			for(int i = 0; i < filenames.length; i++) {
+				FileInfo addedFile = new FileInfo(hashes[i], filenames[i], Long.parseLong(sizes[i]), "");
+				newFiles.addLast(addedFile);
+			}
+			
+			// Cada vez que se registra un peer se borra la información previa que pudiese existir
+			List<FileInfo> oldFiles = peerFiles.get(clientAddr);
+			if(oldFiles != null) {
+				for(FileInfo file : oldFiles) {
+					String fileName = file.fileName;
+					Set<InetSocketAddress> owners = fileOwners.get(fileName);
+					if(owners != null) {
+						owners.remove(clientAddr);
+						if(owners.isEmpty()) {
+							fileOwners.remove(fileName);
+						}
+					}
+				}
+			}
+			
+			peerFiles.put(clientAddr, new ArrayList<>(newFiles));
+			
+			for(FileInfo file : newFiles) {
+				String fileName = file.fileName;
+				fileOwners
+					.computeIfAbsent(fileName, k -> new HashSet<>())
+					.add(clientAddr);
+			}
+			
 			messageToClient.setOperation(DirMessageOps.OPERATION_SERVE_OK);
 			
 			break;
 		}
 		
+		case DirMessageOps.OPERATION_FILELIST_REQUEST: {
+			if(!messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				messageToClient.setOperation(DirMessageOps.OPERATION_BAD_PROTOCOL);
+				System.err.println("Incorrect protocol");
+				break;
+			}
+			
+			messageToClient.setOperation(DirMessageOps.OPERATION_FILELIST_OK);
+			
+			// Recorrer la base de datos recabando la informació
+			
+			break;
+		}
 		
+		case DirMessageOps.OPERATION_DOWNLOAD_REQUEST: {
+			break;
+		}
 
 
 
@@ -279,7 +339,6 @@ public class NFDirectoryServer {
 		 */
 		byte[] dataToSend = messageToClient.toString().getBytes();
 		
-		InetSocketAddress clientAddr = (InetSocketAddress) pkt.getSocketAddress();
 		DatagramPacket packetToClient = new DatagramPacket(dataToSend, dataToSend.length, clientAddr);
 		socket.send(packetToClient);
 
