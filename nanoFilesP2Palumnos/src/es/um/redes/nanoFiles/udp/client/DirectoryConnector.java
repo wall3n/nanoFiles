@@ -277,7 +277,7 @@ public class DirectoryConnector {
 
 		// DONE: Ver TODOs en pingDirectory y seguir esquema similar
 		/*
-		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * DONE: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
 		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
 		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
 		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
@@ -340,7 +340,7 @@ public class DirectoryConnector {
 		// DONE: Ver TODOs en pingDirectory y seguir esquema similar
 		
 		/*
-		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * DONE: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
 		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
 		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
 		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
@@ -386,9 +386,43 @@ public class DirectoryConnector {
 	 *         una lista vacía.
 	 */
 	public InetSocketAddress[] getServersSharingThisFile(String filenameSubstring) {
-		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
-		// TODO: Tipo de mensaje "download_request"
+		// DONE: Ver TODOs en pingDirectory y seguir esquema similar
+		// DONE: Tipo de mensaje "download_request"
 		InetSocketAddress[] serversList = new InetSocketAddress[0];
+		
+		/*
+		 * DONE: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
+		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
+		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 4.Enviar
+		 * datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 5.Convertir
+		 * respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
+		 * 6.Extraer datos del objeto DirMessage y procesarlos 7.Devolver éxito/fracaso
+		 * de la operación
+		 */
+		
+		DirMessage messageToDir = new DirMessage(DirMessageOps.OPERATION_DOWNLOAD_REQUEST);
+		messageToDir.setProtocolID(NanoFiles.PROTOCOL_ID);
+		messageToDir.setFilename(filenameSubstring);
+		
+		byte[] byteMessageToDir = messageToDir.toString().getBytes();
+		
+		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
+		
+		String sRes = new String(response, 0, response.length);
+		
+		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		String[] servers = messageFromDir.getPeer().split("[,\\n]");
+		String[] ports = messageFromDir.getPort().split("[,\\n]");
+		
+		serversList = new InetSocketAddress[servers.length];
+		
+		for(int i = 0; i < servers.length; i++) {
+			serversList[i] = new InetSocketAddress(servers[i], Integer.parseInt(ports[i]));
+		}
+		
 		return serversList;
 	}
 
