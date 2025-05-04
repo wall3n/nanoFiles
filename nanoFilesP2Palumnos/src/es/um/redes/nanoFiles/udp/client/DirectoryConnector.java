@@ -96,12 +96,12 @@ public class DirectoryConnector {
 			System.exit(-1);
 		}
 		/*
-		 * TODO: (Boletín SocketsUDP) Enviar datos en un datagrama al directorio y
+		 * DONE: (Boletín SocketsUDP) Enviar datos en un datagrama al directorio y
 		 * recibir una respuesta. El array devuelto debe contener únicamente los datos
 		 * recibidos, *NO* el búfer de recepción al completo.
 		 */
 		/*
-		 * TODO: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
+		 * DONE: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
 		 * confiable (sin pérdidas) esté terminado y probado, debe implementarse un
 		 * mecanismo de retransmisión usando temporizador, en caso de que no se reciba
 		 * respuesta en el plazo de TIMEOUT. En caso de salte el timeout, se debe volver
@@ -109,7 +109,7 @@ public class DirectoryConnector {
 		 * máximo en MAX_NUMBER_OF_ATTEMPTS ocasiones.
 		 */
 		/*
-		 * TODO: (Boletín SocketsUDP) Las excepciones que puedan lanzarse al
+		 * DONE: (Boletín SocketsUDP) Las excepciones que puedan lanzarse al
 		 * leer/escribir en el socket deben ser capturadas y tratadas en este método. Si
 		 * se produce una excepción de entrada/salida (error del que no es posible
 		 * recuperarse), se debe informar y terminar el programa.
@@ -149,6 +149,10 @@ public class DirectoryConnector {
 				System.exit(-1);
 			}
 		}
+		
+		if(attempts == MAX_NUMBER_OF_ATTEMPTS) {
+			System.err.println("The maximum number of attemps it's been reached");
+		}
 
 		return response;
 	}
@@ -161,7 +165,7 @@ public class DirectoryConnector {
 	 */
 	public boolean testSendAndReceive() {
 		/*
-		 * TODO: (Boletín SocketsUDP) Probar el correcto funcionamiento de
+		 * DONE: (Boletín SocketsUDP) Probar el correcto funcionamiento de
 		 * sendAndReceiveDatagrams. Se debe enviar un datagrama con la cadena "ping" y
 		 * comprobar que la respuesta recibida empieza por "pingok". En tal caso,
 		 * devuelve verdadero, falso si la respuesta no contiene los datos esperados.
@@ -194,7 +198,7 @@ public class DirectoryConnector {
 	public boolean pingDirectoryRaw() {
 		boolean success = false;
 		/*
-		 * TODO: (Boletín EstructuraNanoFiles) Basándose en el código de
+		 * DONE: (Boletín EstructuraNanoFiles) Basándose en el código de
 		 * "testSendAndReceive", contactar con el directorio, enviándole nuestro
 		 * PROTOCOL_ID (ver clase NanoFiles). Se deben usar mensajes "en crudo" (sin un
 		 * formato bien definido) para la comunicación.
@@ -230,7 +234,7 @@ public class DirectoryConnector {
 	public boolean pingDirectory() {
 		boolean success = false;
 		/*
-		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * DONE: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
 		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
 		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
 		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
@@ -271,7 +275,7 @@ public class DirectoryConnector {
 	public boolean registerFileServer(int serverPort, FileInfo[] files) {
 		boolean success = false;
 
-		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
+		// DONE: Ver TODOs en pingDirectory y seguir esquema similar
 		/*
 		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
 		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
@@ -333,7 +337,7 @@ public class DirectoryConnector {
 	 */
 	public FileInfo[] getFileList() {
 		FileInfo[] filelist = new FileInfo[0];
-		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
+		// DONE: Ver TODOs en pingDirectory y seguir esquema similar
 		
 		/*
 		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
@@ -383,6 +387,7 @@ public class DirectoryConnector {
 	 */
 	public InetSocketAddress[] getServersSharingThisFile(String filenameSubstring) {
 		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
+		// TODO: Tipo de mensaje "download_request"
 		InetSocketAddress[] serversList = new InetSocketAddress[0];
 		return serversList;
 	}
