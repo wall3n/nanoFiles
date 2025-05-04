@@ -30,7 +30,7 @@ public class NFDirectoryServer {
 	private DatagramSocket socket = null;
 
 	/*
-	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
+	 * DONE: Añadir aquí como atributos las estructuras de datos que sean necesarias
 	 * para mantener en el directorio cualquier información necesaria para la
 	 * funcionalidad del sistema nanoFilesP2P: ficheros publicados, servidores
 	 * registrados, etc.
@@ -54,19 +54,17 @@ public class NFDirectoryServer {
 		 */
 		messageDiscardProbability = corruptionProbability;
 		/*
-		 * TODO: (Boletín SocketsUDP) Inicializar el atributo socket: Crear un socket
+		 * DONE: (Boletín SocketsUDP) Inicializar el atributo socket: Crear un socket
 		 * UDP ligado al puerto especificado por el argumento directoryPort en la
 		 * máquina local,
 		 */
 		socket = new DatagramSocket(NFDirectoryServer.DIRECTORY_PORT);
 		/*
-		 * TODO: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
+		 * DONE: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
 		 * servidor de directorio: ficheros, etc.)
 		 */
 		peerFiles = new HashMap<>();
 		fileOwners = new HashMap<>();
-		
-
 
 		if (NanoFiles.testModeUDP) {
 			if (socket == null) {
@@ -83,7 +81,7 @@ public class NFDirectoryServer {
 		while (!datagramReceived) {
 			
 			/*
-			 * TODO: (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
+			 * DONE: (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
 			 * datagrama asociado al búfer (datagramReceivedFromClient)
 			 */
 			
@@ -91,7 +89,7 @@ public class NFDirectoryServer {
 			datagramReceivedFromClient = new DatagramPacket(recvBuf, recvBuf.length);
 			
 			/*
-			 * TODO: (Boletín SocketsUDP) Recibimos a través del socket un datagrama
+			 * DONE: (Boletín SocketsUDP) Recibimos a través del socket un datagrama
 			 */
 			
 			socket.receive(datagramReceivedFromClient);
@@ -134,20 +132,20 @@ public class NFDirectoryServer {
 
 	private void sendResponseTestMode(DatagramPacket pkt) throws IOException {
 		/*
-		 * TODO: (Boletín SocketsUDP) Construir un String partir de los datos recibidos
+		 * DONE: (Boletín SocketsUDP) Construir un String partir de los datos recibidos
 		 * en el datagrama pkt. A continuación, imprimir por pantalla dicha cadena a
 		 * modo de depuración.
 		 */
 
 		/*
-		 * TODO: (Boletín SocketsUDP) Después, usar la cadena para comprobar que su
+		 * DONE: (Boletín SocketsUDP) Después, usar la cadena para comprobar que su
 		 * valor es "ping"; en ese caso, enviar como respuesta un datagrama con la
 		 * cadena "pingok". Si el mensaje recibido no es "ping", se informa del error y
 		 * se envía "invalid" como respuesta.
 		 */
 
 		/*
-		 * TODO: (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
+		 * DONE: (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
 		 * de que la cadena recibida no sea exactamente "ping", comprobar si comienza
 		 * por "ping&" (es del tipo "ping&PROTOCOL_ID", donde PROTOCOL_ID será el
 		 * identificador del protocolo diseñado por el grupo de prácticas (ver
@@ -195,7 +193,7 @@ public class NFDirectoryServer {
 
 	private void sendResponse(DatagramPacket pkt) throws IOException {
 		/*
-		 * TODO: (Boletín MensajesASCII) Construir String partir de los datos recibidos
+		 * DONE: (Boletín MensajesASCII) Construir String partir de los datos recibidos
 		 * en el datagrama pkt. A continuación, imprimir por pantalla dicha cadena a
 		 * modo de depuración. Después, usar la cadena para construir un objeto
 		 * DirMessage que contenga en sus atributos los valores del mensaje. A partir de
@@ -211,14 +209,14 @@ public class NFDirectoryServer {
 
 
 		/*
-		 * TODO: Una vez construido un objeto DirMessage con el contenido del datagrama
+		 * DONE: Una vez construido un objeto DirMessage con el contenido del datagrama
 		 * recibido, obtener el tipo de operación solicitada por el mensaje y actuar en
 		 * consecuencia, enviando uno u otro tipo de mensaje en respuesta.
 		 */
 		String operation = messageFromClient.getOperation(); // DONE: Cambiar!
 
 		/*
-		 * TODO: (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
+		 * DONE: (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
 		 * la respuesta a enviar al cliente, en función del tipo de mensaje recibido,
 		 * leyendo/modificando según sea necesario el "estado" guardado en el servidor
 		 * de directorio (atributos files, etc.). Los atributos del objeto DirMessage
@@ -267,7 +265,7 @@ public class NFDirectoryServer {
 				break;
 			}
 			
-			// TODO: Guardar los archivos en las estructuras de datos
+			// DONE: Guardar los archivos en las estructuras de datos
 			String[] filenames = messageFromClient.getFilename().split("[,\\n]");
 			String[] sizes = messageFromClient.getSize().split("[,\\n]");
 			String[] hashes = messageFromClient.getSize().split("[,\\n]");
@@ -316,12 +314,15 @@ public class NFDirectoryServer {
 			
 			messageToClient.setOperation(DirMessageOps.OPERATION_FILELIST_OK);
 			
-			// Recorrer la base de datos recabando la informació
+			// TODO: Reccorer las estructuras de datos para generar el mensaje de respuesta
 			
 			break;
 		}
 		
 		case DirMessageOps.OPERATION_DOWNLOAD_REQUEST: {
+			
+			// TODO: Recorrer las estructuras de datos para devolver los peers que son poseedores del fichero
+			
 			break;
 		}
 
