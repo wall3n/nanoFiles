@@ -314,12 +314,86 @@ public class NFDirectoryServer {
 			
 			messageToClient.setOperation(DirMessageOps.OPERATION_FILELIST_OK);
 			
-			// TODO: Reccorer las estructuras de datos para generar el mensaje de respuesta
+			StringBuilder sbFilenames = new StringBuilder();
+			StringBuilder sbSizes = new StringBuilder();
+			StringBuilder sbHashes = new StringBuilder();
+			
+			// DONE: Reccorer las estructuras de datos para generar el mensaje de respuesta
+			for(List<FileInfo> files : peerFiles.values()) {
+				for(int i = 0; i < files.size(); i++) {
+					FileInfo file = files.get(i);
+					sbFilenames.append(file.fileName);
+				    sbSizes.append(Long.toString(file.fileSize));
+				    sbHashes.append(file.fileHash);
+				    if (i < files.size() - 1) {
+				        sbFilenames.append(",");
+				        sbSizes.append(",");
+				        sbHashes.append(",");
+				    }
+				}
+			}
+			
+			messageToClient.setFilename(sbFilenames.toString());
+			messageToClient.setSize(sbSizes.toString());
+			messageToClient.setHash(sbHashes.toString());
 			
 			break;
 		}
 		
 		case DirMessageOps.OPERATION_DOWNLOAD_REQUEST: {
+			
+			if(!messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				messageToClient.setOperation(DirMessageOps.OPERATION_BAD_PROTOCOL);
+				System.err.println("Incorrect protocol");
+				break;
+			}
+			
+			String query = messageFromClient.getFilename();
+			
+			List<String> candidates = new ArrayList<String>();
+			for(String filename : fileOwners.keySet()) {
+				if(filename.contains(query)) {
+					candidates.add(filename);
+				}
+			}
+			
+			if(candidates.size() == 0) {
+				messageToClient.setOperation(DirMessageOps.OPERATION_FILE_NOT_FOUND);
+				break;
+			} else if(candidates.size() > 1) {
+				messageToClient.setOperation(DirMessageOps.OPERATION_FILE_AMBIGUOUS);
+				break;
+			}
+			
+			messageToClient.setOperation(DirMessageOps.OPERATION_DOWNLOAD_OK);
+			
+			StringBuilder sbPeers = new StringBuilder();
+			Set<InetSocketAddress> owners = fileOwners.get(candidates.getFirst());
+			String hash = null;
+			
+			for(InetSocketAddress owner : owners) {
+				if(hash == null) {
+					List<FileInfo> files = peerFiles.get(owner);
+					int i = 0;
+					while(i < files.size() && hash == null) {
+						if(files.get(i).fileName.equals(candidates.getFirst())) {
+							hash = files.get(i).fileHash;
+						}
+					}
+				}
+				
+				sbPeers.append(owner.getAddress().toString());
+				sbPeers.append(",");
+			}
+			
+			sbPeers.setLength(sbPeers.length() - 1);
+			messageToClient.setFilename(candidates.getFirst());
+			messageToClient.setHash(hash);
+			messageToClient.setPeer(sbPeers.toString());
+			
+			//TODO: Puerto efimero
+			messageToClient.setPort("0000");
+			
 			
 			// TODO: Recorrer las estructuras de datos para devolver los peers que son poseedores del fichero
 			
