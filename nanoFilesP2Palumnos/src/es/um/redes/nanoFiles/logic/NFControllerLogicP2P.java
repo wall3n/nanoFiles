@@ -160,7 +160,7 @@ public class NFControllerLogicP2P {
 				}
 			}
 		
-			
+			return downloaded;
 				
 	}
 

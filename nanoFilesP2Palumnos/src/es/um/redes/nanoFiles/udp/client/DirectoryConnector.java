@@ -362,14 +362,19 @@ public class DirectoryConnector {
 		
 		DirMessage messageFromDir = DirMessage.fromString(sRes);
 		
+		if(messageFromDir.getFilename().isBlank()) {
+			return filelist;
+		}
+		
 		String[] filenames = messageFromDir.getFilename().split("[,\\n]");
 		String[] sizes = messageFromDir.getSize().split("[,\\n]");
 		String[] hashes = messageFromDir.getSize().split("[,\\n]");
-		FileInfo[] files = new FileInfo[filenames.length];
+		filelist = new FileInfo[filenames.length];
+		
 		
 		for(int i = 0; i < filenames.length; i++) {
 			FileInfo addedFile = new FileInfo(hashes[i], filenames[i], Long.parseLong(sizes[i]), "");
-			files[i] = addedFile;
+			filelist[i] = addedFile;
 		}
 
 		return filelist;
@@ -413,6 +418,16 @@ public class DirectoryConnector {
 		String sRes = new String(response, 0, response.length);
 		
 		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_FILE_AMBIGUOUS)) {
+			System.err.println("Filename ambiguous");
+			return new InetSocketAddress[0];
+		}
+		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_FILE_NOT_FOUND)) {
+			System.err.println("Filename not found on the directory");
+			return new InetSocketAddress[0];
+		}
 		
 		String[] servers = messageFromDir.getPeer().split("[,\\n]");
 		String[] ports = messageFromDir.getPort().split("[,\\n]");
