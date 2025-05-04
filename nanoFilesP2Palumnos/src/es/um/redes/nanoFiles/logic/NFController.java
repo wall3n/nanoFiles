@@ -13,12 +13,9 @@ public class NFController {
 	 */
 	private static final byte OFFLINE = 0;
 	/*
-	 * TODO: (Boletín Autómatas) Añadir más constantes que representen los estados
+	 * DONE: (Boletín Autómatas) Añadir más constantes que representen los estados
 	 * del autómata del cliente de directorio.
 	 */
-
-
-
 
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
@@ -199,21 +196,30 @@ public class NFController {
 	 */
 	private boolean canProcessCommandInCurrentState() {
 		/*
-		 * TODO: (Boletín Autómatas) Para cada comando tecleado en el shell
+		 * DONE: (Boletín Autómatas) Para cada comando tecleado en el shell
 		 * (currentCommand), comprobar "currentState" para ver si dicho comando es
 		 * válido según el estado actual del autómata, ya que no todos los comandos
 		 * serán válidos en cualquier estado. Este método NO debe modificar
 		 * clientStatus.
 		 */
+		
+		/*
+		 * Debido a que nuestro autómata no restringe el uso de ningun comando esta funcion deja ejecutar cualquier comando en cualquier momento
+		 */
+		
 		boolean commandAllowed = true;
 		switch (currentCommand) {
+		case NFCommands.COM_DOWNLOAD:
+		case NFCommands.COM_FILELIST:
+		case NFCommands.COM_HELP:
+		case NFCommands.COM_PING:
+		case NFCommands.COM_QUIT:
 		case NFCommands.COM_MYFILES: {
 			commandAllowed = true;
 			break;
 		}
 		default:
-			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "
-			// command!");
+			 System.err.println("ERROR: undefined behaviour for " + currentCommand + "command!");
 		}
 		return commandAllowed;
 	}
@@ -224,12 +230,10 @@ public class NFController {
 		 * actualizar currentState de acuerdo con el autómata diseñado para pasar al
 		 * siguiente estado y así permitir unos u otros comandos en cada caso.
 		 */
-		if (!success) {
-			return;
-		}
-		switch (currentCommand) {
-		default:
-		}
+		/*
+		 * Debido a que nuestro autómata no restringe el uso de ningun comando esta funcion deja ejecutar cualquier comando en cualquier momento
+		 * El automata diseñado siempre queda en el estado q0 por tanto no requiere un cambio de estado
+		 */
 
 	}
 
