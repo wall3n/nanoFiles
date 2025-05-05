@@ -129,7 +129,7 @@ public class NFServer implements Runnable {
 
 	}
 	/*
-	 * TODO: (Boletín SocketsTCP) Añadir métodos a esta clase para: 1) Arrancar el
+	 * DONE: (Boletín SocketsTCP) Añadir métodos a esta clase para: 1) Arrancar el
 	 * servidor en un hilo nuevo que se ejecutará en segundo plano 2) Detener el
 	 * servidor (stopserver) 3) Obtener el puerto de escucha del servidor etc.
 	 */
@@ -163,6 +163,25 @@ public class NFServer implements Runnable {
 		/*
 		 * DONE: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
+		
+		/*
+		 * DONE: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
+		 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
+		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
+		 * respuesta.
+		 */
+		
+		/*
+		 * DONE: (Boletín SocketsTCP) Para servir un fichero, hay que localizarlo a
+		 * partir de su hash (o subcadena) en nuestra base de datos de ficheros
+		 * compartidos. Los ficheros compartidos se pueden obtener con
+		 * NanoFiles.db.getFiles(). Los métodos lookupHashSubstring y
+		 * lookupFilenameSubstring de la clase FileInfo son útiles para buscar ficheros
+		 * coincidentes con una subcadena dada del hash o del nombre del fichero. El
+		 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
+		 * de su hash completo.
+		 */
+		
 		System.out.println("ServeFilesToClient Executed");
 		
 		try {
@@ -241,6 +260,8 @@ public class NFServer implements Runnable {
 						case PeerMessageOps.OPCODE_TRANSFER_END: {
 							// TODO: Cerrar la conexion
 							System.out.println("Client disconnected");
+							dos.flush();
+							socket.close();
 							break;
 						}
 					}
@@ -250,28 +271,10 @@ public class NFServer implements Runnable {
 				}
 			}
 			
-		
-		/*
-		 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
-		 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
-		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
-		 * respuesta.
-		 */
-			
 		} catch (IOException ex) {
 			System.out.println("Exception: " + ex.getMessage());
 			ex.printStackTrace();
 		}
-		/*
-		 * TODO: (Boletín SocketsTCP) Para servir un fichero, hay que localizarlo a
-		 * partir de su hash (o subcadena) en nuestra base de datos de ficheros
-		 * compartidos. Los ficheros compartidos se pueden obtener con
-		 * NanoFiles.db.getFiles(). Los métodos lookupHashSubstring y
-		 * lookupFilenameSubstring de la clase FileInfo son útiles para buscar ficheros
-		 * coincidentes con una subcadena dada del hash o del nombre del fichero. El
-		 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
-		 * de su hash completo.
-		 */
 
 	}
 

@@ -17,7 +17,7 @@ public class PeerMessage {
 	private byte opcode;
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Añadir atributos u otros constructores
+	 * DONE: (Boletín MensajesBinarios) Añadir atributos u otros constructores
 	 * específicos para crear mensajes con otros campos, según sea necesario
 	 * 
 	 */

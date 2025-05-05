@@ -15,7 +15,9 @@ public class NFServerThread extends Thread {
 		socket = sk;
 	}
 
-	
+	public void run() {
+		NFServer.serveFilesToClient(socket);
+	}
 
 
 }

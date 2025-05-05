@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -26,6 +27,8 @@ public class NFConnector {
 	private DataInputStream dis;
 	private DataOutputStream dos;
 	
+	private String file;
+	
 	
 	public NFConnector(InetSocketAddress fserverAddr) throws UnknownHostException, IOException {
 		serverAddr = fserverAddr;
@@ -34,8 +37,7 @@ public class NFConnector {
 		 * servidor (IP, puerto). La creación exitosa del socket significa que la
 		 * conexión TCP ha sido establecida.
 		 */
-		socket = new Socket();
-		socket.connect(fserverAddr);
+		socket = new Socket(serverAddr.getHostString(), serverAddr.getPort());
 		/*
 		 * DONE: (Boletín SocketsTCP) Se crean los DataInputStream/DataOutputStream a
 		 * partir de los streams de entrada/salida del socket creado. Se usarán para
@@ -43,7 +45,7 @@ public class NFConnector {
 		 */
 		dis = new DataInputStream(socket.getInputStream());
 		dos = new DataOutputStream(socket.getOutputStream());
-	
+		file = new String();
 	}
 
 	public void test() {
@@ -51,30 +53,11 @@ public class NFConnector {
 		 * DONE: (Boletín SocketsTCP) Enviar entero cualquiera a través del socket y
 		 * después recibir otro entero, comprobando que se trata del mismo valor.
 		 */
-		/*
-		try {
-			// Enviar
-			PeerMessage msgEnvia = new PeerMessage(PeerMessageOps.OPCODE_DOWNLOAD_FILE, "gsjsks".getBytes());
-			System.out.println("El mensaje generado tiene el codigo de operacion: " + msgEnvia.getOpcode());
-			msgEnvia.writeMessageToOutputStream(dos);
-			
-			
-			// Recibir
-			PeerMessage msgRecibe = PeerMessage.readMessageFromInputStream(dis);
-			if(msgRecibe.getOpcode() == PeerMessageOps.OPCODE_FILE_FOUNDED) {
-				System.out.println("Comunicacion existosa");
-			} else {
-				System.err.println("Comunicacion fallida");
-			}
-			
-		} catch (IOException ex) {
-			System.out.println("Error en test(): " + ex.getMessage());
-		}
-		*/
 	}
 	
 	public String getFileHash(String fileName) throws IOException {
 		PeerMessage msgToPeer = new PeerMessage(PeerMessageOps.OPCODE_DOWNLOAD_FILE, (short) fileName.length(), fileName.getBytes());
+		System.out.println("Hash asked for file: " + fileName);
 		msgToPeer.writeMessageToOutputStream(dos);
 		
 		PeerMessage msgFromPeer = PeerMessage.readMessageFromInputStream(dis);
@@ -85,7 +68,8 @@ public class NFConnector {
 			System.err.println("File ambiguous");
 			return null;
 		} else if(msgFromPeer.getOpcode() == PeerMessageOps.OPCODE_FILE_FOUNDED) {
-			return new String(msgFromPeer.getFileName());
+			System.out.println("File founded!!");
+			return new String(msgFromPeer.getFileHash());
 		} else {
 			System.err.println("Unexpected error");
 			return null;
@@ -122,9 +106,10 @@ public class NFConnector {
 	public void transferEnd() throws IOException {
 		PeerMessage msgToPeer = new PeerMessage(PeerMessageOps.OPCODE_TRANSFER_END);
 		msgToPeer.writeMessageToOutputStream(dos);
-		dis.close();
-		dos.close();
+		dos.flush();
 		socket.close();
+		System.out.println("Socket closed");
+		return;
 	}
 	
 

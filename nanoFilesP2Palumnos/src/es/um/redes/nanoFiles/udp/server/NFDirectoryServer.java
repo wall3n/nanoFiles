@@ -382,7 +382,7 @@ public class NFDirectoryServer {
 					}
 				}
 				
-				sbPeers.append(owner.getAddress().toString());
+				sbPeers.append(owner.getHostName());
 				sbPeers.append(",");
 			}
 			
@@ -390,8 +390,6 @@ public class NFDirectoryServer {
 			messageToClient.setFilename(candidates.getFirst());
 			messageToClient.setHash(hash);
 			messageToClient.setPeer(sbPeers.toString());
-			
-			//TODO: Puerto efimero
 			messageToClient.setPort("10000");
 			
 			

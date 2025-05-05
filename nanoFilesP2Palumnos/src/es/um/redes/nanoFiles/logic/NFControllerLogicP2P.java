@@ -65,12 +65,8 @@ public class NFControllerLogicP2P {
 				System.out.println("File server listening on: " + port);
 				serverRunning = true;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-
-
 
 		}
 		return serverRunning;
@@ -136,6 +132,7 @@ public class NFControllerLogicP2P {
 	 */
 	protected boolean downloadFileFromServers(InetSocketAddress[] serverAddressList, String targetFileNameSubstring,
 			String localFileName) {
+		
 		boolean downloaded = false;
 
 		if (serverAddressList.length == 0) {
@@ -163,6 +160,7 @@ public class NFControllerLogicP2P {
 		 * posible recuperarse), se debe informar sin abortar el programa
 		 */
 		
+		// Comprobamos que no exista un archivo con el mismo nombre
 		if( FileInfo.lookupFilenameSubstring(NanoFiles.db.getFiles(), localFileName).length != 0) {
 			System.err.println("No se puede realizar la descarga porque ya existe un fichero con el nombre: " + localFileName );
 			return false;
@@ -179,6 +177,7 @@ public class NFControllerLogicP2P {
 			return false;
 		}
 		
+		// Obtenemos el tamaño del archivo para calcular el tamaño del chunk
 		String fileHash = null;
 		int chunk_size = 0;
 		try {
@@ -194,26 +193,50 @@ public class NFControllerLogicP2P {
 		
 		if(fileHash == null) {
 			System.err.println("Error looking for the file");
+			try {
+				rafFile.close();
+			} catch (IOException ignore) {
+				
+			}
+			file.delete();
 			return false;
 		}
 		
 		if(chunk_size <= 0) {
 			System.err.println("Error reading the filesize");
+			try {
+				rafFile.close();
+			} catch (IOException ignore) {
+				
+			}
+			file.delete();
 			return false;
 		} 
 	
+		// Iteramos todos los servidores para descargar un chunk de cada servidor
 		long offset = 0;
 		for (InetSocketAddress fserverAddr : serverAddressList) {
 			try {
 				NFConnector conectServer = new NFConnector(fserverAddr);
-				// Pedir a cada servidor el chunk especifico
 				String serverHash = conectServer.getFileHash(targetFileNameSubstring);
 				if(serverHash == null) {
 					System.err.println("getFileHash failed");
+					try {
+						rafFile.close();
+					} catch (IOException ignore) {
+						
+					}
+					file.delete();
+					return false;
 				}
 				
 				if(!fileHash.equals(serverHash)) {
 					System.err.println("Hashes are different");
+					try {
+						rafFile.close();
+					} catch (IOException ignore) {
+						
+					}
 					return false;
 				}
 				
@@ -241,7 +264,7 @@ public class NFControllerLogicP2P {
 		String actualFileHash;
 		actualFileHash = FileDigest.computeFileChecksumString(file.getPath());
 		
-		
+		// Comprobamos la integridad del archivo
 		if(!fileHash.equals(actualFileHash)) {
 			System.err.println("Hashes doesnt match");
 			file.delete();
@@ -260,7 +283,7 @@ public class NFControllerLogicP2P {
 	 */
 	protected int getServerPort() {
 		/*
-		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros
+		 * DONE: Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
 		return fileServer != null ? fileServer.getPort() : 0;
 		
@@ -272,7 +295,7 @@ public class NFControllerLogicP2P {
 	 */
 	protected void stopFileServer() {
 		/*
-		 * TODO: Enviar señal para detener nuestro servidor de ficheros en segundo plano
+		 * DONE: Enviar señal para detener nuestro servidor de ficheros en segundo plano
 		 */
 		if(fileServer != null) {
 			fileServer.stopServer();
