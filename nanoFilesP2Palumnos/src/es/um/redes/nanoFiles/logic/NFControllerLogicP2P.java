@@ -40,20 +40,35 @@ public class NFControllerLogicP2P {
 		 * Comprobar que no existe ya un objeto NFServer previamente creado, en cuyo
 		 * caso el servidor ya está en marcha.
 		 */
+		/*
+		 * DONE: (Boletín Servidor TCP concurrente) Arrancar servidor en segundo plano
+		 * creando un nuevo hilo, comprobar que el servidor está escuchando en un puerto
+		 * válido (>0), imprimir mensaje informando sobre el puerto de escucha, y
+		 * devolver verdadero. Las excepciones que puedan lanzarse deben ser capturadas
+		 * y tratadas en este método. Si se produce una excepción de entrada/salida
+		 * (error del que no es posible recuperarse), se debe informar sin abortar el
+		 * programa
+		 * 
+		 */
 		if (fileServer != null) {
 			System.err.println("File server is already running");
+			return false;
 		} else {
-
-			/*
-			 * TODO: (Boletín Servidor TCP concurrente) Arrancar servidor en segundo plano
-			 * creando un nuevo hilo, comprobar que el servidor está escuchando en un puerto
-			 * válido (>0), imprimir mensaje informando sobre el puerto de escucha, y
-			 * devolver verdadero. Las excepciones que puedan lanzarse deben ser capturadas
-			 * y tratadas en este método. Si se produce una excepción de entrada/salida
-			 * (error del que no es posible recuperarse), se debe informar sin abortar el
-			 * programa
-			 * 
-			 */
+			try {
+				fileServer = new NFServer();
+				Thread thread = new Thread(fileServer);
+				thread.setDaemon(true);
+				thread.start();
+				
+				int port = fileServer.getPort();
+				if(port <= 0) throw new IOException("Invalid port: " + port);
+				System.out.println("File server listening on: " + port);
+				serverRunning = true;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 
 
 
@@ -129,7 +144,7 @@ public class NFControllerLogicP2P {
 		}
 		
 		/*
-		 * TODO: Crear un objeto NFConnector distinto para establecer una conexión TCP
+		 * DONE: Crear un objeto NFConnector distinto para establecer una conexión TCP
 		 * con cada servidor de ficheros proporcionado, y usar dicho objeto para
 		 * descargar trozos (chunks) del fichero. 
 		 * 
@@ -245,8 +260,8 @@ public class NFControllerLogicP2P {
 		/*
 		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
-		assert(fileServer == null);
-		return NFServer.PORT;
+		return fileServer != null ? fileServer.getPort() : 0;
+		
 	}
 
 	/**
@@ -257,17 +272,19 @@ public class NFControllerLogicP2P {
 		/*
 		 * TODO: Enviar señal para detener nuestro servidor de ficheros en segundo plano
 		 */
-
+		if(fileServer != null) {
+			fileServer.stopServer();
+			fileServer = null;
+			System.out.println("File server stopped");
+		}
+		
 
 
 	}
 
 	protected boolean serving() {
-		boolean result = false;
 
-
-
-		return result;
+		return (fileServer != null && fileServer.isRunning());
 
 	}
 

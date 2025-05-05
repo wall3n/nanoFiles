@@ -97,18 +97,8 @@ public class NFServer implements Runnable {
 		 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
 		 * accept
 		 */
-		try {
-			Socket clientSocket = serverSocket.accept();
-			serveFilesToClient(clientSocket);
-			
-		} catch (IOException ex) {
-			System.out.println("Server exception: " + ex.getMessage());
-			ex.printStackTrace();
-		}
-		
-		
 		/*
-		 * TODO: (Boletín TCPConcurrente) Crear un hilo nuevo de la clase
+		 * DONE: (Boletín TCPConcurrente) Crear un hilo nuevo de la clase
 		 * NFServerThread, que llevará a cabo la comunicación con el cliente que se
 		 * acaba de conectar, mientras este hilo vuelve a quedar a la escucha de
 		 * conexiones de nuevos clientes (para soportar múltiples clientes). Si este
@@ -116,8 +106,18 @@ public class NFServer implements Runnable {
 		 * más de un cliente conectado a este servidor.
 		 */
 
-
-
+		System.out.println("NFServer running on port: " + getPort());
+		try {
+			while(!serverSocket.isClosed()) {
+				Socket client = serverSocket.accept();
+				NFServerThread thread = new NFServerThread(client);
+				thread.start();
+			}
+			
+		} catch (IOException ex) {
+			System.out.println("Server exception: " + ex.getMessage());
+			ex.printStackTrace();
+		}
 
 	}
 	/*
@@ -126,6 +126,21 @@ public class NFServer implements Runnable {
 	 * servidor (stopserver) 3) Obtener el puerto de escucha del servidor etc.
 	 */
 
+	public int getPort() {
+		return serverSocket.getLocalPort();
+	}
+	
+	public boolean isRunning() {
+		return serverSocket != null && !serverSocket.isClosed();
+	}
+	
+	public void stopServer() {
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			System.err.println(e);
+		}
+	}
 
 
 
