@@ -83,6 +83,10 @@ public class PeerMessage {
 	 * esté definido para el tipo de mensaje dado por "operation".
 	 */
 	
+	public void setOpcode(byte op) {
+		opcode = op;
+	}
+	
 	public byte getOpcode() {
 		return opcode;
 	}
