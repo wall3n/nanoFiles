@@ -88,11 +88,11 @@ public class NFServer implements Runnable {
 	 */
 	public void run() {
 		/*
-		 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
+		 * DONE: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 		 * otros peers que soliciten descargar ficheros
 		 */
 		/*
-		 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
+		 * DONE: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
 		 * comunicación con dicho cliente se hace en el método
 		 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
 		 * accept
@@ -217,6 +217,7 @@ public class NFServer implements Runnable {
 						
 						case PeerMessageOps.OPCODE_TRANSFER_END: {
 							// TODO: Cerrar la conexion
+							System.out.println("Client disconnected");
 							break;
 						}
 					}
@@ -233,41 +234,6 @@ public class NFServer implements Runnable {
 		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
 		 * respuesta.
 		 */
-			/*String fileHash = null;
-			while(socket.isConnected()) {
-				try {
-					PeerMessage message = PeerMessage.readMessageFromInputStream(dis);
-					byte opcode = message.getOpcode();
-					FileInfo[] files = NanoFiles.db.getFiles();
-					
-					switch(opcode) {
-						case PeerMessageOps.OPCODE_DOWNLOAD_FILE:
-							FileInfo[] match = FileInfo.lookupHashSubstring(files, message.getFileHash().toString());
-							if(match.length == 0) {
-								// file_not_found 
-								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_NOT_FOUND);
-								msg.writeMessageToOutputStream(dos);
-							}else {
-								// file_founded
-								fileHash = match[0].fileHash;
-								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
-								msg.writeMessageToOutputStream(dos);
-							}
-							break;
-						case PeerMessageOps.OPCODE_GET_CHUNK:
-							long offset = message.getFileOffset();
-							int ckSize = message.getChunckSize();
-							String path = NanoFiles.db.lookupFilePath(fileHash);
-							
-						case PeerMessageOps.OPCODE_TRANSFER_END:
-							return;
-							
-					}	
-				} catch (EOFException eof) {
-					System.out.println("Cliente se ha desconectado.");
-					break;
-				}
-			}*/
 			
 		} catch (IOException ex) {
 			System.out.println("Exception: " + ex.getMessage());
