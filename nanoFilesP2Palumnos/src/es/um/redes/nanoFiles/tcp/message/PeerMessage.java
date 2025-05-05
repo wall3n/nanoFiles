@@ -35,6 +35,7 @@ public class PeerMessage {
 	private long length;
 	private byte[] data;
 
+	private long fileSize;
 
 	public PeerMessage() {
 		opcode = PeerMessageOps.OPCODE_INVALID_CODE;
@@ -46,11 +47,15 @@ public class PeerMessage {
 	
 	// Constructores para crear los mensajes
 	
+	public PeerMessage(byte op, long campo1) {
+		opcode = op;
+		fileSize = campo1;
+	}
+	
 	public PeerMessage(byte op, short campo1, byte[] campo2) {
 		opcode = op;
 		lengthName = campo1;
 		fileName = campo2;
-		
 	}
 	
 	public PeerMessage(byte op, long campo1, byte[] campo2) {
@@ -153,6 +158,15 @@ public class PeerMessage {
 		this.data = data;
 	};
 	
+	public long getFileSize() {
+		if (opcode != PeerMessageOps.OPCODE_FILE_SIZE) throw new IllegalStateException("Invalid access to data");
+		return fileSize;
+	};
+	
+	public void setFileSize(long data) {
+		if (opcode != PeerMessageOps.OPCODE_GET_FILE_SIZE) throw new IllegalStateException("Invalid access to data");
+		this.fileSize = data;
+	};
 
 	/**
 	 * Método de clase para parsear los campos de un mensaje y construir el objeto
@@ -178,8 +192,16 @@ public class PeerMessage {
 		switch (opcode) {
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:
+			case PeerMessageOps.OPCODE_GET_FILE_SIZE:
 			case PeerMessageOps.OPCODE_CHUNK_NOT_FOUND:
 			case PeerMessageOps.OPCODE_FILE_AMBIGUOUS: {
+				break;
+			}
+			
+			case PeerMessageOps.OPCODE_FILE_SIZE: {
+				long rFileSize = dis.readLong();
+				if (rFileSize > Long.MAX_VALUE) throw new IOException("Size too large");
+				message.setFileSize(rFileSize);
 				break;
 			}
 				
@@ -244,6 +266,7 @@ public class PeerMessage {
 		
 			case PeerMessageOps.OPCODE_FILE_NOT_FOUND:
 			case PeerMessageOps.OPCODE_TRANSFER_END:
+			case PeerMessageOps.OPCODE_GET_FILE_SIZE:
 			case PeerMessageOps.OPCODE_FILE_AMBIGUOUS:
 			case PeerMessageOps.OPCODE_CHUNK_NOT_FOUND:
 				break;

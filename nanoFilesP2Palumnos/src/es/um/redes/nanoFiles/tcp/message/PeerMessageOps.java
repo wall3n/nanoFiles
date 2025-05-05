@@ -20,6 +20,8 @@ public class PeerMessageOps {
 	public static final byte OPCODE_FILE_FOUNDED = 0x06;
 	public static final byte OPCODE_CHUNK_NOT_FOUND = 0x07;
 	public static final byte OPCODE_FILE_AMBIGUOUS = 0x08;
+	public static final byte OPCODE_GET_FILE_SIZE = 0x09;
+	public static final byte OPCODE_FILE_SIZE = 0x10;
 
 
 	/*
@@ -37,6 +39,8 @@ public class PeerMessageOps {
 			OPCODE_FILE_FOUNDED,
 			OPCODE_CHUNK_NOT_FOUND,
 			OPCODE_FILE_AMBIGUOUS,
+			OPCODE_GET_FILE_SIZE,
+			OPCODE_FILE_SIZE,
 	};
 	private static final String[] _valid_operations_str = { 
 			"INVALID_OPCODE",
@@ -48,6 +52,8 @@ public class PeerMessageOps {
 			"FILE_FOUNDED",
 			"CHUNK_NOT_FOUND",
 			"FILE_AMBIGUOUS",
+			"GET_FILE_SIZE",
+			"FILE_SIZE"
 	};
 
 	private static Map<String, Byte> _operation_to_opcode;
