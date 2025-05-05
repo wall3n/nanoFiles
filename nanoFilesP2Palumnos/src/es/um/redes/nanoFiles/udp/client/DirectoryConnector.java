@@ -422,7 +422,7 @@ public class DirectoryConnector {
 		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
 		
 		String sRes = new String(response, 0, response.length);
-		
+		System.out.println("Message recived from download_request: " + sRes);
 		DirMessage messageFromDir = DirMessage.fromString(sRes);
 		
 		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_BAD_PROTOCOL)) {

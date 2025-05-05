@@ -163,11 +163,13 @@ public class NFControllerLogicP2P {
 		 * posible recuperarse), se debe informar sin abortar el programa
 		 */
 		
-		File file = new File("nf-shared/".concat(targetFileNameSubstring));
-		if(file.exists()) {
+		if( FileInfo.lookupFilenameSubstring(NanoFiles.db.getFiles(), localFileName).length != 0) {
 			System.err.println("No se puede realizar la descarga porque ya existe un fichero con el nombre: " + localFileName );
 			return false;
 		}
+		
+		 
+		File file = new File("nf-shared", localFileName);
 		
 		RandomAccessFile rafFile;
 		try {
@@ -232,22 +234,22 @@ public class NFControllerLogicP2P {
 		
 		try {
 			rafFile.close();
-		} catch (IOException e) {
-			System.err.println("Error al cerrar el fichero");
-			return false;
+		} catch (IOException ignore) {
+			
 		}
 		
-		String actualFileHash = FileDigest.computeFileChecksumString("nf-shared".concat(localFileName));
+		String actualFileHash;
+		actualFileHash = FileDigest.computeFileChecksumString(file.getPath());
+		
+		
 		if(!fileHash.equals(actualFileHash)) {
 			System.err.println("Hashes doesnt match");
 			file.delete();
 			return false;
-		} else {
-			downloaded = true;
 		}
 			
-			
-		return downloaded;
+		System.out.println("Descarga completada");
+		return true;
 				
 	}
 
