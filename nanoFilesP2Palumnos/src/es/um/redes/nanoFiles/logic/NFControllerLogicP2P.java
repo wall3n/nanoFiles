@@ -1,13 +1,18 @@
 package es.um.redes.nanoFiles.logic;
 
 import java.net.InetSocketAddress;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
 import es.um.redes.nanoFiles.application.NanoFiles;
 
 
 
 import es.um.redes.nanoFiles.tcp.server.NFServer;
+import es.um.redes.nanoFiles.util.FileDigest;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 public class NFControllerLogicP2P {
@@ -122,6 +127,7 @@ public class NFControllerLogicP2P {
 			System.err.println("* Cannot start download - No list of server addresses provided");
 			return false;
 		}
+		
 		/*
 		 * TODO: Crear un objeto NFConnector distinto para establecer una conexión TCP
 		 * con cada servidor de ficheros proporcionado, y usar dicho objeto para
@@ -141,26 +147,92 @@ public class NFControllerLogicP2P {
 		 * método. Si se produce una excepción de entrada/salida (error del que no es
 		 * posible recuperarse), se debe informar sin abortar el programa
 		 */
-			if( FileInfo.lookupFilenameSubstring(NanoFiles.db.getFiles(), localFileName).length != 0) {
-				System.err.println("No se puede realizar la descarga porque ya existe un fichero con el nombre: " + localFileName );
-				return false;
-				
-			} else {
-	
-				for (InetSocketAddress fserverAddr : serverAddressList) {
-					try {
-						NFConnector conectServer = new NFConnector(fserverAddr);
-						// Pedir a cada servidor el chunk especifico
-						
-						
-						
-					} catch (IOException ex) {
-						System.out.println("Error al establecer conexión TCP: " + ex.getMessage());
-					}
-				}
-			}
 		
-			return downloaded;
+		File file = new File("nf-shared/".concat(targetFileNameSubstring));
+		if(file.exists()) {
+			System.err.println("No se puede realizar la descarga porque ya existe un fichero con el nombre: " + localFileName );
+			return false;
+		}
+		
+		RandomAccessFile rafFile;
+		try {
+			rafFile = new RandomAccessFile(file, "rw");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		String fileHash = null;
+		int chunk_size = 0;
+		try {
+			NFConnector conectServer = new NFConnector(serverAddressList[0]);
+			// Pedir a cada servidor el chunk especifico
+			fileHash = conectServer.getFileHash(targetFileNameSubstring);
+			chunk_size = (int) (conectServer.getFileSize() / serverAddressList.length);
+			conectServer.transferEnd();
+					
+		} catch (IOException ex) {
+			System.out.println("Error al establecer conexión TCP: " + ex.getMessage());
+		}
+		
+		if(fileHash == null) {
+			System.err.println("Error looking for the file");
+			return false;
+		}
+		
+		if(chunk_size <= 0) {
+			System.err.println("Error reading the filesize");
+			return false;
+		} 
+	
+		long offset = 0;
+		for (InetSocketAddress fserverAddr : serverAddressList) {
+			try {
+				NFConnector conectServer = new NFConnector(fserverAddr);
+				// Pedir a cada servidor el chunk especifico
+				String serverHash = conectServer.getFileHash(targetFileNameSubstring);
+				if(serverHash == null) {
+					System.err.println("getFileHash failed");
+				}
+				
+				if(!fileHash.equals(serverHash)) {
+					System.err.println("Hashes are different");
+					return false;
+				}
+				
+				byte[] chunk = conectServer.getChunk(offset, chunk_size);
+				
+				rafFile.seek(offset);
+				rafFile.write(chunk);
+				
+				offset += chunk_size;
+				
+				conectServer.transferEnd();
+						
+			} catch (IOException ex) {
+				System.out.println("Error al establecer conexión TCP: " + ex.getMessage());
+			}
+			
+		}
+		
+		try {
+			rafFile.close();
+		} catch (IOException e) {
+			System.err.println("Error al cerrar el fichero");
+			return false;
+		}
+		
+		String actualFileHash = FileDigest.computeFileChecksumString("nf-shared".concat(localFileName));
+		if(!fileHash.equals(actualFileHash)) {
+			System.err.println("Hashes doesnt match");
+			file.delete();
+			return false;
+		} else {
+			downloaded = true;
+		}
+			
+			
+		return downloaded;
 				
 	}
 
@@ -174,7 +246,7 @@ public class NFControllerLogicP2P {
 		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
 		assert(fileServer == null);
-		return fileServer.PORT
+		return NFServer.PORT;
 	}
 
 	/**
