@@ -268,7 +268,7 @@ public class NFDirectoryServer {
 			// DONE: Guardar los archivos en las estructuras de datos
 			String[] filenames = messageFromClient.getFilename().split("[,\\n]");
 			String[] sizes = messageFromClient.getSize().split("[,\\n]");
-			String[] hashes = messageFromClient.getSize().split("[,\\n]");
+			String[] hashes = messageFromClient.getHash().split("[,\\n]");
 			List<FileInfo> newFiles = new ArrayList<FileInfo>();
 		
 			for(int i = 0; i < filenames.length; i++) {

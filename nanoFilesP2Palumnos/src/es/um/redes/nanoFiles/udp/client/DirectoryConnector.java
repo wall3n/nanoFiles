@@ -306,7 +306,6 @@ public class DirectoryConnector {
 		messageToDir.setFilename(String.join(",", filenames));
 		messageToDir.setSize(String.join(",", sizes));
 		messageToDir.setHash(String.join(",", hashes));
-		
 		byte[] byteMessageToDir = messageToDir.toString().getBytes();
 		
 		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
@@ -375,7 +374,7 @@ public class DirectoryConnector {
 		
 		String[] filenames = messageFromDir.getFilename().split("[,\\n]");
 		String[] sizes = messageFromDir.getSize().split("[,\\n]");
-		String[] hashes = messageFromDir.getSize().split("[,\\n]");
+		String[] hashes = messageFromDir.getHash().split("[,\\n]");
 		filelist = new FileInfo[filenames.length];
 		
 		
