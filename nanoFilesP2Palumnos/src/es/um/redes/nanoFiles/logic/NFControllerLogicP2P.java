@@ -170,14 +170,11 @@ public class NFControllerLogicP2P {
 	 * @return El puerto en el que escucha el servidor, o 0 en caso de error.
 	 */
 	protected int getServerPort() {
-		int port = 0;
 		/*
 		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
-
-
-
-		return port;
+		assert(fileServer == null);
+		return fileServer.PORT
 	}
 
 	/**
