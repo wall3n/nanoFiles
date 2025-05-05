@@ -318,8 +318,10 @@ public class DirectoryConnector {
 		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_SERVE_OK)) {
 			success = true;
 			System.out.println("Directory registered!");
+		} else if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_BAD_PROTOCOL)) {
+			System.err.println("Wrong protocol");
 		} else {
-			System.err.println("Serve failed");
+			System.err.println("Something failed");
 		}
 		
 		return success;
@@ -361,6 +363,11 @@ public class DirectoryConnector {
 		String sRes = new String(response, 0, response.length);
 		
 		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_BAD_PROTOCOL)) {
+			System.err.println("Wrong protocol");
+			return filelist;
+		}
 		
 		if(messageFromDir.getFilename().isBlank()) {
 			return filelist;
@@ -419,6 +426,11 @@ public class DirectoryConnector {
 		
 		DirMessage messageFromDir = DirMessage.fromString(sRes);
 		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_BAD_PROTOCOL)) {
+			System.err.println("Wrong protocol");
+			return new InetSocketAddress[0];
+		}
+		
 		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_FILE_AMBIGUOUS)) {
 			System.err.println("Filename ambiguous");
 			return new InetSocketAddress[0];
@@ -450,8 +462,37 @@ public class DirectoryConnector {
 	public boolean unregisterFileServer() {
 		boolean success = false;
 
+		// DONE: Ver TODOs en pingDirectory y seguir esquema similar
+		
+		/*
+		 * DONE: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
+		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
+		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
+		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 4.Enviar
+		 * datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 5.Convertir
+		 * respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
+		 * 6.Extraer datos del objeto DirMessage y procesarlos 7.Devolver éxito/fracaso
+		 * de la operación
+		 */
 
-
+		DirMessage messageToDir = new DirMessage(DirMessageOps.OPERATION_UNREGISTER);
+		messageToDir.setProtocolID(NanoFiles.PROTOCOL_ID);
+		
+		byte[] byteMessageToDir = messageToDir.toString().getBytes();
+		
+		byte[] response = this.sendAndReceiveDatagrams(byteMessageToDir);
+		
+		String sRes = new String(response, 0, response.length);
+		
+		DirMessage messageFromDir = DirMessage.fromString(sRes);
+		
+		if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_BAD_PROTOCOL)) {
+			System.err.println("Wrong protocol");
+			return success;
+		} else if(messageFromDir.getOperation().equals(DirMessageOps.OPERATION_UNREGISTER_OK)) {
+			success = true;
+		}
 
 		return success;
 	}
