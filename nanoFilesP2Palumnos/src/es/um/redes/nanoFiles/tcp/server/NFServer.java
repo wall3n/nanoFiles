@@ -8,6 +8,7 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.sql.SQLSyntaxErrorException;
 
 import es.um.redes.nanoFiles.application.NanoFiles;
@@ -114,8 +115,15 @@ public class NFServer implements Runnable {
 				thread.start();
 			}
 			
-		} catch (IOException ex) {
-			System.out.println("Server exception: " + ex.getMessage());
+		} catch (SocketException e) {
+			if(serverSocket.isClosed()) {
+				System.out.println("Server socket, accept loop suspended");
+			} else {
+				e.printStackTrace();
+			}
+		}
+		
+		catch (IOException ex) {
 			ex.printStackTrace();
 		}
 
@@ -137,8 +145,8 @@ public class NFServer implements Runnable {
 	public void stopServer() {
 		try {
 			serverSocket.close();
-		} catch (IOException e) {
-			System.err.println(e);
+		} catch (IOException ignore) {
+			
 		}
 	}
 
