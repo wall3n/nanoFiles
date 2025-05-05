@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -150,13 +151,74 @@ public class NFServer implements Runnable {
 					
 					PeerMessage msgRecibe = PeerMessage.readMessageFromInputStream(dis);
 					
-					if(msgRecibe.getOpcode() == PeerMessageOps.OPCODE_DOWNLOAD_FILE) {
-						System.out.println("Se ha solicitado una descarga");
-						PeerMessage msgEnvia = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED);
-						msgEnvia.writeMessageToOutputStream(dos);
-					} else {
-						System.err.println(msgRecibe.getOpcode());
-						System.err.println("Codigo de error incorrecto");
+					FileInfo[] myFiles = NanoFiles.db.getFiles();
+					FileInfo file = null;
+					boolean fileValidated = false;
+					
+					switch(msgRecibe.getOpcode()) {
+						case PeerMessageOps.OPCODE_DOWNLOAD_FILE: {
+							System.out.println("File requested for download: " + new String(msgRecibe.getFileName()));
+							FileInfo[] match = FileInfo.lookupFilenameSubstring(myFiles, new String(msgRecibe.getFileName()));
+							if(match.length == 0) {
+								// file_not_found
+								System.err.println("File not found");
+								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_NOT_FOUND);
+								msg.writeMessageToOutputStream(dos);
+							}else if (match.length > 1){
+								// file_ambiguous
+								System.err.println("File ambiguous");
+								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_AMBIGUOUS);
+								msg.writeMessageToOutputStream(dos);
+							} else {
+								System.out.println("File founded");
+								file = match[0];
+								fileValidated = true;
+								PeerMessage msg = new PeerMessage(PeerMessageOps.OPCODE_FILE_FOUNDED, (long) file.fileHash.length(), file.fileHash.getBytes());
+								msg.writeMessageToOutputStream(dos);
+							}
+							break;
+						}
+						
+						case PeerMessageOps.OPCODE_GET_FILE_SIZE: {
+							System.out.println("Requested file size");
+							PeerMessage msgToClient = new PeerMessage();
+							if(!fileValidated) {
+								System.err.println("First you have to select a file");
+								msgToClient.setOpcode(PeerMessageOps.OPCODE_INVALID_CODE);
+								msgToClient.writeMessageToOutputStream(dos);
+								break;
+							}
+							msgToClient.setOpcode(PeerMessageOps.OPCODE_FILE_SIZE);
+							msgToClient.setFileSize(file.fileSize);
+							msgToClient.writeMessageToOutputStream(dos);
+							break;
+						}
+						
+						case PeerMessageOps.OPCODE_GET_CHUNK: {
+							System.out.println("Chunk requested");
+							PeerMessage msgToClient = new PeerMessage();
+							if(!fileValidated) {
+								System.err.println("First you have to select a file");
+								msgToClient.setOpcode(PeerMessageOps.OPCODE_INVALID_CODE);
+								msgToClient.writeMessageToOutputStream(dos);
+								break;
+							}
+							RandomAccessFile raf = new RandomAccessFile(file.filePath, "r");
+							raf.seek(msgRecibe.getFileOffset());
+							byte[] data = new byte[msgRecibe.getChunckSize()];
+							raf.readFully(data);
+							
+							msgToClient.setOpcode(PeerMessageOps.OPCODE_SEND_CHUNK);
+							msgToClient.setLength(msgRecibe.getChunckSize());
+							msgToClient.setData(data);
+							msgToClient.writeMessageToOutputStream(dos);
+							break;
+						}
+						
+						case PeerMessageOps.OPCODE_TRANSFER_END: {
+							// TODO: Cerrar la conexion
+							break;
+						}
 					}
 				} catch (EOFException eof) {
 					System.out.println("Cliente se ha desconectado.");
