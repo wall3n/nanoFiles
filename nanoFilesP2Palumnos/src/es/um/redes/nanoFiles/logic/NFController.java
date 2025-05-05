@@ -214,6 +214,7 @@ public class NFController {
 		case NFCommands.COM_HELP:
 		case NFCommands.COM_PING:
 		case NFCommands.COM_QUIT:
+		case NFCommands.COM_SERVE:
 		case NFCommands.COM_MYFILES: {
 			commandAllowed = true;
 			break;
