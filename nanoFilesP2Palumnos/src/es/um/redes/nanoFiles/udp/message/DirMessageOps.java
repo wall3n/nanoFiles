@@ -19,6 +19,8 @@ public class DirMessageOps {
 	public static final String OPERATION_DOWNLOAD_OK = "download_ok";
 	public static final String OPERATION_FILE_NOT_FOUND = "file_not_found";
 	public static final String OPERATION_FILE_AMBIGUOUS = "file_ambiguous";
+	public static final String OPERATION_UNREGISTER = "unregister";
+	public static final String OPERATION_UNREGISTER_OK = "unregister_ok";
 
 
 

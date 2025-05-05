@@ -120,7 +120,7 @@ public class DirMessage {
 	 */
 	
 	// Creamos estructuras para que ver que conjunto de operaciones pueden acceder a los métodos de cada atributo
-	private static final Set<String> protocolIdAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_PING, DirMessageOps.OPERATION_FILELIST_REQUEST, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_REQUEST));
+	private static final Set<String> protocolIdAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_PING, DirMessageOps.OPERATION_FILELIST_REQUEST, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_REQUEST, DirMessageOps.OPERATION_UNREGISTER));
 	private static final Set<String> filenameAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_FILELIST_OK, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_REQUEST, DirMessageOps.OPERATION_DOWNLOAD_OK));
 	private static final Set<String> sizeAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_FILELIST_OK, DirMessageOps.OPERATION_SERVE));
 	private static final Set<String> hashAllowedOp = new HashSet<String>(Arrays.asList(DirMessageOps.OPERATION_FILELIST_OK, DirMessageOps.OPERATION_SERVE, DirMessageOps.OPERATION_DOWNLOAD_OK));
@@ -425,6 +425,14 @@ public class DirMessage {
 			break;
 		}
 		
+		case DirMessageOps.OPERATION_UNREGISTER: {
+			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE);
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_UNREGISTER_OK: {
+			break;
+		}
 		}
 
 

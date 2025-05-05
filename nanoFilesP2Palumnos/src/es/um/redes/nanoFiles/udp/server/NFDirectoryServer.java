@@ -392,11 +392,39 @@ public class NFDirectoryServer {
 			messageToClient.setPeer(sbPeers.toString());
 			
 			//TODO: Puerto efimero
-			messageToClient.setPort("0000");
+			messageToClient.setPort("10000");
 			
 			
-			// TODO: Recorrer las estructuras de datos para devolver los peers que son poseedores del fichero
+			// DONE: Recorrer las estructuras de datos para devolver los peers que son poseedores del fichero
 			
+			break;
+		}
+		
+		case DirMessageOps.OPERATION_UNREGISTER: {
+			if(!messageFromClient.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				messageToClient.setOperation(DirMessageOps.OPERATION_BAD_PROTOCOL);
+				System.err.println("Incorrect protocol");
+				break;
+			}
+			
+			List<FileInfo> filesToDelete = peerFiles.remove(clientAddr);
+			
+			if(filesToDelete == null) {
+				break;
+			}
+			
+			for(FileInfo file : filesToDelete) {
+				String filename = file.fileName;
+				Set<InetSocketAddress> peers = fileOwners.get(clientAddr);
+				if(peers != null) {
+					peers.remove(clientAddr);
+					if(peers.isEmpty()) {
+						fileOwners.remove(filename);
+					}
+				}
+			}
+			
+			messageToClient.setOperation(DirMessageOps.OPERATION_UNREGISTER_OK);
 			break;
 		}
 
