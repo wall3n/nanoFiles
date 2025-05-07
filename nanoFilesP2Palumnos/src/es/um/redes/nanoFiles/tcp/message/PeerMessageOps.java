@@ -53,7 +53,7 @@ public class PeerMessageOps {
 			"CHUNK_NOT_FOUND",
 			"FILE_AMBIGUOUS",
 			"GET_FILE_SIZE",
-			"FILE_SIZE"
+			"FILE_SIZE",
 	};
 
 	private static Map<String, Byte> _operation_to_opcode;
