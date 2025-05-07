@@ -186,16 +186,18 @@ public class NFServer implements Runnable {
 		
 		try {
 			
-			while(socket.isConnected()) {
+			FileInfo[] myFiles = NanoFiles.db.getFiles();
+			FileInfo file = null;
+			boolean fileValidated = false;
+			
+			while(!socket.isClosed()) {
 				try {
 					DataInputStream dis = new DataInputStream(socket.getInputStream());
 					DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 					
 					PeerMessage msgRecibe = PeerMessage.readMessageFromInputStream(dis);
 					
-					FileInfo[] myFiles = NanoFiles.db.getFiles();
-					FileInfo file = null;
-					boolean fileValidated = false;
+					
 					
 					switch(msgRecibe.getOpcode()) {
 						case PeerMessageOps.OPCODE_DOWNLOAD_FILE: {
