@@ -168,7 +168,7 @@ public class PeerMessage {
 	};
 	
 	public void setFileSize(long data) {
-		if (opcode != PeerMessageOps.OPCODE_GET_FILE_SIZE) throw new IllegalStateException("Invalid access to data");
+		if (opcode != PeerMessageOps.OPCODE_FILE_SIZE) throw new IllegalStateException("Invalid access to data");
 		this.fileSize = data;
 	};
 
@@ -295,7 +295,10 @@ public class PeerMessage {
 				dos.writeLong(data.length);
 				dos.write(data);
 				break;
-
+			case PeerMessageOps.OPCODE_FILE_SIZE: {
+				dos.writeLong(fileSize);
+				break;
+			}
 				
 		default:
 			System.err.println("PeerMessage.writeMessageToOutputStream found unexpected message opcode " + opcode + "("
