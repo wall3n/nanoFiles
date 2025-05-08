@@ -379,6 +379,7 @@ public class NFDirectoryServer {
 						if(files.get(i).fileName.equals(candidates.getFirst())) {
 							hash = files.get(i).fileHash;
 						}
+						i++;
 					}
 				}
 				
